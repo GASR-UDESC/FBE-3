@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="GtkDialog" id="dialog">
+        <property name="title">Rename</property>
+        <child type="action">
+            <object class="GtkButton" id="button_cancel">
+                <property name="label">Cancel</property>
+                <property name="halign">start</property>
+                <property name="valign">end</property>
+            </object>
+        </child>
+        <child type="action">
+            <object class="GtkButton" id="button_ok">
+                <property name="label">Ok</property>
+                <property name="halign">end</property>
+                <property name="valign">end</property>
+            </object>
+        </child>
+        <action-widgets>
+            <action-widget response="cancel">button_cancel</action-widget>
+            <action-widget response="ok" default="true">button_ok</action-widget>
+        </action-widgets>
+    </object>
+</interface>
