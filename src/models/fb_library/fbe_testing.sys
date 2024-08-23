@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System Name="fbe_testing" Comment="">
+	<VersionInfo Version="1.0" Author="cabral" Date="2024-03-18">
+	</VersionInfo>
+	<Application Name="fbe_testingApp" Comment="">
+		<SubAppNetwork>
+			<FB Name="F_ADD" Type="F_ADD" Comment="" x="2941.176470588235" y="941.1764705882352">
+				<Parameter Name="IN1" Value="INT#2"/>
+				<Parameter Name="IN2" Value="INT#1"/>
+			</FB>
+			<SubApp Name="tt" Type="tt" Comment="" x="470.5882352941176" y="941.1764705882352">
+			</SubApp>
+			<FB Name="E_CTU" Type="E_CTU" Comment="" x="1764.705882352941" y="941.1764705882352">
+			</FB>
+			<EventConnections>
+				<Connection Source="E_CTU.CUO" Destination="F_ADD.REQ" Comment=""/>
+				<Connection Source="tt.INITO" Destination="E_CTU.CU" Comment=""/>
+			</EventConnections>
+			<DataConnections>
+				<Connection Source="E_CTU.CV" Destination="F_ADD.IN1" Comment="" dx1="329.4117647058823"/>
+			</DataConnections>
+		</SubAppNetwork>
+	</Application>
+	<Application Name="test" Comment="">
+		<SubAppNetwork>
+		</SubAppNetwork>
+	</Application>
+	<Device Name="FORTE_PC" Type="FORTE_PC" Comment="" x="2058.8235294117644" y="1041.1764705882351">
+		<Parameter Name="MGR_ID" Value="&quot;localhost:61499&quot;"/>
+		<Attribute Name="Profile" Type="STRING" Value="HOLOBLOC" Comment="device profile"/>
+		<Attribute Name="Color" Type="STRING" Value="255,190,111" Comment="color"/>
+		<Resource Name="EMB_RES" Type="EMB_RES" Comment="" x="0.0" y="0.0">
+			<FBNetwork>
+				<FB Name="F_ADD" Type="F_ADD" Comment="" x="2941.176470588235" y="-117.6470588235294">
+					<Parameter Name="IN1" Value="INT#2"/>
+					<Parameter Name="IN2" Value="INT#1"/>
+				</FB>
+				<FB Name="E_CTU" Type="E_CTU" Comment="" x="1764.705882352941" y="-117.6470588235294">
+				</FB>
+				<EventConnections>
+					<Connection Source="E_CTU.CUO" Destination="F_ADD.REQ" Comment=""/>
+					<Connection Source="START.COLD" Destination="E_CTU.CU" Comment="" dx1="482.35294117647055"/>
+				</EventConnections>
+				<DataConnections>
+					<Connection Source="E_CTU.CV" Destination="F_ADD.IN1" Comment="" dx1="329.4117647058823"/>
+				</DataConnections>
+			</FBNetwork>
+		</Resource>
+	</Device>
+	<Device Name="PFC200" Type="PFC200" Comment="" x="3647.0588235294117" y="1058.8235294117646">
+		<Parameter Name="MGR_ID" Value="&quot;localhost:61499&quot;"/>
+		<Attribute Name="Profile" Type="STRING" Value="HOLOBLOC" Comment="device profile"/>
+		<Attribute Name="Color" Type="STRING" Value="42,235,196" Comment="color"/>
+	</Device>
+	<Mapping From="fbe_testingApp.F_ADD" To="FORTE_PC.EMB_RES.F_ADD"/>
+	<Mapping From="fbe_testingApp.E_CTU" To="FORTE_PC.EMB_RES.E_CTU"/>
+</System>

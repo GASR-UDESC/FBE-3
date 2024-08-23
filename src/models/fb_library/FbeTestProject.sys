@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System Name="FbeTestProject" Comment="">
+	<Identification Standard="Test standard" Classification="Test" ApplicationDomain="GASR" Function="For testing" Type="Test" Description="System created for test purposes only" >
+	</Identification>
+	<VersionInfo Organization="GASR-UDESC" Version="1.0" Author="cabral" Date="2024-05-15">
+	</VersionInfo>
+	<Application Name="MainApp" Comment="">
+		<SubAppNetwork>
+			<FB Name="E_SR" Type="E_SR" Comment="" x="2823.529411764706" y="1764.705882352941">
+			</FB>
+			<FB Name="E_PERMIT" Type="E_PERMIT" Comment="" x="1882.3529411764705" y="1764.705882352941">
+				<Parameter Name="PERMIT" Value="TRUE"/>
+			</FB>
+			<FB Name="E_CYCLE" Type="E_CYCLE" Comment="" x="823.5294117647059" y="1647.0588235294117">
+				<Parameter Name="DT" Value="10s"/>
+			</FB>
+			<FB Name="E_CTD" Type="E_CTD" Comment="" x="3882.3529411764703" y="1764.705882352941">
+				<Parameter Name="PV" Value="1"/>
+			</FB>
+			<EventConnections>
+				<Connection Source="E_CYCLE.EO" Destination="E_PERMIT.EI" Comment="" dx1="223.52941176470586"/>
+				<Connection Source="E_PERMIT.EO" Destination="E_SR.S" Comment=""/>
+				<Connection Source="E_SR.EO" Destination="E_CTD.CD" Comment=""/>
+			</EventConnections>
+			<DataConnections>
+				<Connection Source="E_SR.Q" Destination="E_PERMIT.PERMIT" Comment="" dx1="70.58823529411764" dx2="70.58823529411764" dy="205.88235294117646"/>
+			</DataConnections>
+		</SubAppNetwork>
+	</Application>
+	<Application Name="SumApp" Comment="">
+		<SubAppNetwork>
+			<FB Name="F_ADD" Type="F_ADD" Comment="" x="1999.9999999999998" y="1058.8235294117646">
+				<Parameter Name="IN1" Value="UINT#1"/>
+				<Parameter Name="IN2" Value="UINT#3"/>
+			</FB>
+			<FB Name="F_EQ" Type="F_EQ" Comment="" x="3058.8235294117644" y="1058.8235294117646">
+				<Parameter Name="IN2" Value="UINT#1"/>
+			</FB>
+			<EventConnections>
+				<Connection Source="F_ADD.CNF" Destination="F_EQ.REQ" Comment=""/>
+			</EventConnections>
+			<DataConnections>
+				<Connection Source="F_ADD.OUT" Destination="F_EQ.IN1" Comment=""/>
+			</DataConnections>
+		</SubAppNetwork>
+	</Application>
+	<Application Name="MultApp" Comment="">
+		<SubAppNetwork>
+			<FB Name="F_MUL" Type="F_MUL" Comment="" x="1529.4117647058822" y="1882.3529411764705">
+				<Parameter Name="IN1" Value="UINT#4"/>
+				<Parameter Name="IN2" Value="UINT#2"/>
+			</FB>
+			<FB Name="F_SUB" Type="F_SUB" Comment="" x="2588.235294117647" y="1999.9999999999998">
+				<Parameter Name="IN2" Value="UINT#2"/>
+			</FB>
+			<FB Name="F_MAX" Type="F_MAX" Comment="" x="3647.0588235294117" y="1999.9999999999998">
+				<Parameter Name="IN2" Value="UINT#7"/>
+			</FB>
+			<EventConnections>
+				<Connection Source="F_MUL.CNF" Destination="F_SUB.REQ" Comment="" dx1="270.5882352941176"/>
+				<Connection Source="F_SUB.CNF" Destination="F_MAX.REQ" Comment=""/>
+			</EventConnections>
+			<DataConnections>
+				<Connection Source="F_MUL.OUT" Destination="F_SUB.IN1" Comment="" dx1="270.5882352941176"/>
+				<Connection Source="F_SUB.OUT" Destination="F_MAX.IN1" Comment=""/>
+			</DataConnections>
+		</SubAppNetwork>
+	</Application>
+	<Device Name="DEV_FORTE" Type="FORTE_PC" Comment="" x="2341.176470588235" y="982.3529411764705">
+		<Parameter Name="MGR_ID" Value="&quot;localhost:61499&quot;"/>
+		<Attribute Name="Profile" Type="STRING" Value="HOLOBLOC" Comment="device profile"/>
+		<Attribute Name="Color" Type="STRING" Value="255,190,111" Comment="color"/>
+		<Resource Name="FST_RES" Type="EMB_RES" Comment="" x="0.0" y="0.0">
+			<FBNetwork>
+				<FB Name="F_ADD" Type="F_ADD" Comment="" x="2117.6470588235293" y="470.5882352941176">
+					<Parameter Name="IN1" Value="UINT#1"/>
+					<Parameter Name="IN2" Value="UINT#3"/>
+				</FB>
+				<FB Name="E_CYCLE" Type="E_CYCLE" Comment="" x="1647.0588235294117" y="1176.4705882352941">
+					<Parameter Name="DT" Value="10s"/>
+				</FB>
+				<EventConnections>
+					<Connection Source="START.COLD" Destination="F_ADD.REQ" Comment="" dx1="600.0"/>
+					<Connection Source="START.WARM" Destination="E_CYCLE.START" Comment="" dx1="423.52941176470586"/>
+				</EventConnections>
+			</FBNetwork>
+		</Resource>
+		<Resource Name="SECOND_RES" Type="EMB_RES" Comment="" x="0.0" y="0.0">
+			<FBNetwork>
+				<FB Name="E_CTD" Type="E_CTD" Comment="" x="1764.705882352941" y="705.8823529411765">
+					<Parameter Name="PV" Value="1"/>
+				</FB>
+				<FB Name="F_MUL" Type="F_MUL" Comment="" x="1647.0588235294117" y="-117.6470588235294">
+					<Parameter Name="IN1" Value="UINT#4"/>
+					<Parameter Name="IN2" Value="UINT#2"/>
+				</FB>
+				<EventConnections>
+					<Connection Source="START.WARM" Destination="E_CTD.LD" Comment="" dx1="482.35294117647055"/>
+					<Connection Source="START.COLD" Destination="F_MUL.REQ" Comment="" dx1="364.70588235294116"/>
+				</EventConnections>
+			</FBNetwork>
+		</Resource>
+		<Resource Name="THIRD_RES" Type="EMB_RES" Comment="" x="0.0" y="0.0">
+			<FBNetwork>
+			</FBNetwork>
+		</Resource>
+	</Device>
+	<Device Name="FORTE" Type="FORTE_PC" Comment="" x="4017.6470588235293" y="1005.8823529411764">
+		<Parameter Name="MGR_ID" Value="&quot;localhost:61499&quot;"/>
+		<Attribute Name="Profile" Type="STRING" Value="HOLOBLOC" Comment="device profile"/>
+		<Attribute Name="Color" Type="STRING" Value="216,74,241" Comment="color"/>
+		<Resource Name="GASR" Type="EMB_RES" Comment="" x="0.0" y="0.0">
+			<FBNetwork>
+				<FB Name="F_EQ" Type="F_EQ" Comment="" x="1058.8235294117646" y="470.5882352941176">
+					<Parameter Name="IN2" Value="UINT#1"/>
+				</FB>
+				<FB Name="FINAL" Type="F_MIN" Comment="" x="3529.411764705882" y="0.0">
+				</FB>
+				<FB Name="F_MAX" Type="F_MAX" Comment="" x="1999.9999999999998" y="705.8823529411765">
+					<Parameter Name="IN2" Value="UINT#7"/>
+				</FB>
+				<EventConnections>
+					<Connection Source="START.WARM" Destination="FINAL.REQ" Comment="" dx1="723.5294117647059"/>
+				</EventConnections>
+				<DataConnections>
+					<Connection Source="F_EQ.OUT" Destination="FINAL.IN2" Comment="" dx1="358.8235294117647"/>
+					<Connection Source="F_MAX.OUT" Destination="FINAL.IN1" Comment="" dx1="505.8823529411764"/>
+				</DataConnections>
+			</FBNetwork>
+		</Resource>
+	</Device>
+	<Mapping From="SumApp.F_ADD" To="DEV_FORTE.FST_RES.F_ADD"/>
+	<Mapping From="MainApp.E_CYCLE" To="DEV_FORTE.FST_RES.E_CYCLE"/>
+	<Mapping From="MainApp.E_CTD" To="DEV_FORTE.SECOND_RES.E_CTD"/>
+	<Mapping From="SumApp.F_EQ" To="FORTE.GASR.F_EQ"/>
+	<Mapping From="MultApp.F_MAX" To="FORTE.GASR.F_MAX"/>
+	<Mapping From="MultApp.F_MUL" To="DEV_FORTE.SECOND_RES.F_MUL"/>
+</System>
