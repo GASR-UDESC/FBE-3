@@ -41,24 +41,24 @@ class FbeApplication(Adw.Application):
         self.create_action('about', self.on_about_action, ['<Ctrl>m'])
         self.set_accels_for_action('win.new-project', ['<Ctrl>n'])
         self.set_accels_for_action('win.open-project', ['<Ctrl>o'])
+        self.set_accels_for_action('win.rename-project', ['<Ctrl>r'])
+        self.set_accels_for_action('win.close-project', ['<Ctrl>d'])
         self.set_accels_for_action('win.new-app', ['<Ctrl><Shift>n'])
         self.set_accels_for_action('win.rename-app', ['F2'])
-        self.set_accels_for_action('win.delete-app', ['Delete'])
+        self.set_accels_for_action('win.delete-app', ['F3'])
         self.set_accels_for_action('win.show-help-overlay', ['<Ctrl><Shift>question'])
         self.set_accels_for_action('win.system-information', ['<Ctrl>g'])
         self.set_accels_for_action('win.system-configuration', ['<Ctrl>h'])
-        self.set_accels_for_action('win.apps-swipe-left', ['<Ctrl>a'])
-        self.set_accels_for_action('win.apps-swipe-right', ['<Ctrl>d'])
-        self.set_accels_for_action('win.save', ['<Ctrl>s'])
-        self.set_accels_for_action('win.save-as', ['<Ctrl><Alt>s'])
+        self.set_accels_for_action('win.apps-swipe-left', ['<Ctrl>p'])
+        self.set_accels_for_action('win.apps-swipe-right', ['<Ctrl>a'])
+        self.set_accels_for_action('win.save-project', ['<Ctrl>s'])
         self.set_accels_for_action('win.add-type', ['<Ctrl><Alt>n'])
         self.set_accels_for_action('win.last-page', ['<Ctrl>b'])
         self.set_accels_for_action('win.export-project', ['<Ctrl>e'])
 
-        print(cur_path)
-
     def do_activate(self):
-        """Called when the application is activated.
+        """
+        Called when the application is activated.
 
         We raise the application's main window, creating it if
         necessary.
@@ -70,19 +70,22 @@ class FbeApplication(Adw.Application):
 
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
-        about = Adw.AboutWindow(transient_for=self.props.active_window,
-                                application_name='Function Block Environment 3',
-                                application_icon='fbe',
-                                developer_name='Claudinei Cabral',
-                                version='0.1.0',
-                                comments="An application for modelling function blocks based on IEC 61499",
-                                license_type=Gtk.License.GPL_3_0,
-                                developers=['Cabral'],
-                                copyright='© 2024 GASR')
+        about = Adw.AboutWindow(
+            transient_for=self.props.active_window,
+            application_name='Function Block Environment 3',
+            application_icon='fbe',
+            developer_name='Claudinei Cabral, Mauricio Taques',
+            version='0.2.0',
+            comments="An application for modelling function blocks based on IEC 61499",
+            license_type=Gtk.License.GPL_3_0,
+            developers=['Cabral, Mauricio'],
+            copyright='© 2024-2025 GASR'
+        )
         about.present()
 
     def create_action(self, name, callback, shortcuts=None):
-        """Add an application action.
+        """
+        Add an application action.
 
         Args:
             name: the name of the action
