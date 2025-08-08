@@ -48,6 +48,8 @@ class FbeWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.maximize()
+
         # print(cur_path)
         new_file_action = Gio.SimpleAction(name="new-project")
         new_file_action.connect("activate", self.new_file_dialog)
