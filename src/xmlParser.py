@@ -506,7 +506,7 @@ def convert_xml_system(xml, library):
             
             for read_2 in read_1.iter("FBNetwork"):
                 fb_diagram = Composite()
-                resource = convert_xml_resource(library+resource_type+'.res')
+                resource = convert_xml_resource(library+resource_type+'.res', library)
                 resource.name = resource_name
                 resource.change_pos(25, 25)
                 fb_diagram.add_function_block(resource.fb_network.function_blocks[0])

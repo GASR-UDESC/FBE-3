@@ -18,11 +18,12 @@ class ProjectEditor(PageMixin, Gtk.Box):
     apps_submenu = Gtk.Template.Child()
     popover_menubar = Gtk.Template.Child()
     
-    def __init__(self, window, system=None, current_page=None, current_tool=None, system_editor=None, *args, **kwargs):
+    def __init__(self, window, system=None, current_page=None, current_tool=None, library=None, system_editor=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.window = window
         self.system = system
+        self.library = library
         self.editor_index = 0
         self.current_page = current_page 
         self.current_page_label = Gtk.Label()
@@ -30,7 +31,7 @@ class ProjectEditor(PageMixin, Gtk.Box):
         self.last_page_label = None
         self.current_tool = current_tool
         self.system_editor = SystemEditor(self.window, self, self.system)
-        self.system_configuration_editor = SystemConfigEditor(self.system, self)
+        self.system_configuration_editor = SystemConfigEditor(self.system, self, self.library)
         self.applications_editors = list()
         
         if current_page is None:

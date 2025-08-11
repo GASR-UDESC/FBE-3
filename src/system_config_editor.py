@@ -8,7 +8,7 @@ from .fb_editor import FunctionBlockEditor
 from .xmlParser import *
 
 class SystemConfigEditor(PageMixin, Gtk.Box):
-    def __init__(self, system, project, current_tool=None, *args, **kwargs):
+    def __init__(self, system, project, library, current_tool=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.system = system

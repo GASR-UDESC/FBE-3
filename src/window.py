@@ -81,8 +81,8 @@ class FbeWindow(Adw.ApplicationWindow):
         # self.vbox_window.append(self.menu)
         self.selected_tool = None
         self.library = None  # Library path to load nested elements
-        self.notebook.connect('create-window', self.on_notebookbook_create_window)
-        self.notebook.connect('page-removed', self.on_notebookbook_page_removed)
+        self.notebook.connect('create-window', self.on_notebook_create_window)
+        self.notebook.connect('page-removed', self.close_project)
         self.add_fb_btn.connect('clicked', self.add_fb_dialog)
         self.edit_fb_btn.connect('clicked',self.inspect_function_block)
         self.connect_fb_btn.connect('clicked', self.connect_function_block)
@@ -355,7 +355,7 @@ class FbeWindow(Adw.ApplicationWindow):
 
     # ------------------ Project Tab Methods -------------------
 
-    def on_notebookbook_create_window(self,notebookbook,widget,x,y):
+    def on_notebook_create_window(self,notebook,widget,x,y):
         # handler for dropping outside of notebookbook
         new_window = self.props.application.add_window()
 
