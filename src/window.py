@@ -50,13 +50,18 @@ class FbeWindow(Adw.ApplicationWindow):
 
         self.maximize()
 
-        # print(cur_path)
         new_file_action = Gio.SimpleAction(name="new-project")
         new_file_action.connect("activate", self.new_file_dialog)
         self.add_action(new_file_action)
+
         open_action = Gio.SimpleAction(name="open-project")
         open_action.connect("activate", self.open_file_sys_dialog)
         self.add_action(open_action)
+
+        delete_proj_action = Gio.SimpleAction(name="close-project")
+        delete_proj_action.connect("activate", self.close_project)
+        self.add_action(delete_proj_action)
+
         add_type_action = Gio.SimpleAction(name="add-type")
         add_type_action.connect("activate", self.add_fb_dialog)
         self.add_action(add_type_action)
@@ -86,7 +91,6 @@ class FbeWindow(Adw.ApplicationWindow):
         
         self.directory_list = Gtk.DirectoryList.new(
             attributes=Gio.FILE_ATTRIBUTE_STANDARD_NAME,
-            file=Gio.File.new_for_path(".")
         )
 
         self.vbox_separator = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin_top=5)
@@ -94,8 +98,14 @@ class FbeWindow(Adw.ApplicationWindow):
         # Create a GtkSingleSelection model
         self.selection_model = Gtk.SingleSelection.new(self.directory_list)
 
+        if self.selection_model.get_autoselect():
+            self.selection_model.set_autoselect(False)
+
         # Create a ListView to display the files
         self.list_view = Gtk.ListView.new(model=self.selection_model, factory=self.create_list_factory())
+
+        # Create a GestureClick to add fb from the imported library
+        self.gesture_press = Gtk.GestureClick.new()
 
         self.scrolled_window = Gtk.ScrolledWindow(margin_top=5)
         self.scrolled_window.set_child(self.list_view)
@@ -114,9 +124,6 @@ class FbeWindow(Adw.ApplicationWindow):
 
         self.refresh_button = Gtk.Button(label="Refresh library")
         self.refresh_button.connect("clicked", self.on_refresh_button_clicked)
-
-        self.add_library_fb_btn = Gtk.Button(label="Add function block")
-        self.add_library_fb_btn.connect("clicked", self.on_refresh_button_clicked)
         
         self.vpaned.set_end_child(self.vbox_separator)
         self.vbox_separator.append(self.vbox_expander)
@@ -124,7 +131,11 @@ class FbeWindow(Adw.ApplicationWindow):
         self.vbox_separator.append(self.refresh_button)
         self.vbox_expander.append(self.library_expander)
 
-        self.load_files()
+        self.gesture_press.connect("pressed", self.on_add_library_fb)
+        self.list_view.add_controller(self.gesture_press)
+
+        self.library = "/home/tqs/fbe3_gnome/src/models/fb_library/"
+        self.actual_folder = None
 
     def create_list_factory(self):
         factory = Gtk.SignalListItemFactory()
@@ -132,8 +143,8 @@ class FbeWindow(Adw.ApplicationWindow):
         factory.connect("bind", self.on_factory_bind)
         return factory
 
-    def load_files(self, directory="Projects/fbe3_gnome/src/models/fb_library/"):
-        self.library = directory
+    # ------------------ Load Library methods -----------------------------
+    def load_files(self, directory):
         directory = Gio.File.new_for_path(directory)
         self.directory_list.set_file(directory)
         
@@ -154,12 +165,19 @@ class FbeWindow(Adw.ApplicationWindow):
     def on_file_dialog_response(self, dialog, response):
         if response == Gtk.ResponseType.OK:
             selected_folder = dialog.get_file().get_path()
+            self.actual_folder = selected_folder
             self.load_files(selected_folder)
+            self.imported_library = True
         dialog.destroy()
 
+    # Method to refresh the library
     def on_refresh_button_clicked(self, widget):
-        self.load_files()
+        if self.actual_folder:
+            self.load_files(self.actual_folder)
+        else:
+            print("No imported folder")
 
+    # --Methods to setup the Gtk.SignalListItemFactory--
     def on_factory_setup(self, factory, list_item):
         label = Gtk.Label()
         list_item.set_child(label)
@@ -169,27 +187,19 @@ class FbeWindow(Adw.ApplicationWindow):
         label = list_item.get_child()
         if file_info:
             label.set_text(file_info.get_name())
-        
+    # --------------------------------------------------
 
+    # Method to create a project
     def new_file_dialog(self, action, param=None):
         self.notebook.set_visible(True)
         self.labels_box.set_visible(False)
         system = System(name='Untitled')
         system.application_create()
         window = self.get_ancestor(Gtk.Window)
-        fb_project = ProjectEditor(window, system, current_tool=self.selected_tool)
+        fb_project = ProjectEditor(window, system, current_tool=self.selected_tool, library=self.library)
         self.add_tab_editor(fb_project, system.name, None)
 
-    def open_file_dialog(self, action, parameter):
-        filters = Gio.ListStore.new(Gtk.FileFilter)
-        filter_fbt = Gtk.FileFilter()
-        filter_fbt.set_name("fbt Files")
-        filter_fbt.add_pattern("*.fbt")
-        filters.append(filter_fbt)
-        native = Gtk.FileDialog()
-        native.set_filters(filters)
-        native.open(self, None, self.on_open_response)
-        
+    # -------- Methods to open a existing project ----------------------
     def open_file_sys_dialog(self, action, parameter):
         filters = Gio.ListStore.new(Gtk.FileFilter)
         filter_fbt = Gtk.FileFilter()
@@ -200,53 +210,46 @@ class FbeWindow(Adw.ApplicationWindow):
         native.set_filters(filters)
         native.open(self, None, self.on_open_project_response)
 
+    def get_current_tab_widget(self):
+        _id = self.notebook.get_current_page()
+        return self.notebook.get_nth_page(_id)
+
     def on_open_project_response(self, dialog, result):
         file = dialog.open_finish(result)
         file_name = file.get_path()
-        print(file_name)
+        current_page = self.notebook.get_current_page()
+        sys_name = file_name.split("/")[-1]
+        contents = file.load_contents_finish(result)
+
         # If the user selected a file...
         if file is not None:
             self.notebook.set_visible(True)
             self.labels_box.set_visible(False)
             window = self.get_ancestor(Gtk.Window)
             system = convert_xml_system(file_name, self.library)
-            fb_project = ProjectEditor(window, system, current_tool=self.selected_tool)
-            self.add_tab_editor(fb_project, system.name, None)
-    
-    def on_open_response(self, dialog, result):
-        file = dialog.open_finish(result)
-        file_name = file.get_path()
-        print(file_name)
-        # If the user selected a file...
-        if file is not None:
-            # ... open it
-            fb_choosen, _  = convert_xml_basic_fb(file_name, self.library)
-            fb_diagram = Composite()
-            fb_diagram.add_function_block(fb_choosen)
-            self.add_tab_editor(fb_diagram, fb_choosen.name, fb_choosen)
+
+            if system is None:
+                if current_page < 0:
+                    self.labels_box.set_visible(True)
+                    toast = Adw.Toast.new(f"Unable to open: {sys_name}")
+                    toast_overlay = Adw.ToastOverlay.new()
+                    toast_overlay.add_toast(toast)
+                    self.vbox_window.append(toast_overlay)
+                else:
+                    toast = Adw.Toast.new(f"Unable to open: {sys_name}")
+                    toast_overlay = Adw.ToastOverlay.new()
+                    toast_overlay.add_toast(toast)
+                    self.vbox_window.append(toast_overlay)
+
+            else:
+                fb_project = ProjectEditor(window, system, current_tool=self.selected_tool, library=self.library)
+                self.add_tab_editor(fb_project, system.name, None)
 
     def on_import_resource_response(self, type_name):
         resource = convert_xml_resource(self.library+type_name+'.res')
         return resource
 
-    def open_file(self, file):
-        file.load_contents_async(None, self.open_file_complete)
-
-    def open_file_complete(self, file, result):
-
-        contents = file.load_contents_finish(result)
-        if not contents[0]:
-            path = file.peek_path()
-            print(f"Unable to open {path}: {contents[1]}")
-            return
-
-        try:
-            text = contents[1].decode('utf-8')
-        except UnicodeError as err:
-            path = file.peek_path()
-            print(f"Unable to load the contents of {path}: the file is not encoded with UTF-8")
-            return
-
+    # Methods to add a function block to the application ---------
     def add_fb_dialog(self, action, param=None):
         # Create a new file selection dialog, using the "open" mode
         filters = Gio.ListStore.new(Gtk.FileFilter)
@@ -258,14 +261,10 @@ class FbeWindow(Adw.ApplicationWindow):
         native.set_filters(filters)
         native.open(self, None, self.on_add_response)
 
-    def on_add_library_fb(self, action, param=None):
-        pass
-
     def on_add_response(self, dialog, result):
         self.selected_tool = 'add'
         file = dialog.open_finish(result)
         file_name = file.get_path()
-        print(file_name)
         toast = Adw.ToastOverlay()
         toast.set_parent(self.vbox_window)
         self.vbox_window.append(toast)
@@ -279,6 +278,60 @@ class FbeWindow(Adw.ApplicationWindow):
                 print('not fb editor')
                 toast.add_toast(Adw.Toast(title="Must be inside application editor to add type", timeout=3))
                 self.selected_tool = None
+    # ------------------------------------------------------------
+
+    # Method to add a function block to the application from the imported library
+    def on_add_library_fb(self, gesture, n_press, x, y):
+        self.selected_tool = 'add'
+        toast_overlay = Adw.ToastOverlay.new()
+        toast_overlay.set_parent(self.vbox_window)
+        self.vbox_window.append(toast_overlay)
+
+
+        selected_item_index = self.selection_model.get_selected()
+        print('SELECTED_ITEM_INDEX')
+        print(selected_item_index)
+        print('\n')
+        if selected_item_index == Gtk.INVALID_LIST_POSITION:
+            toast = Adw.Toast(title="No selected item.", timeout=3)
+            toast_overlay.add_toast(toast)
+            return
+
+        file_info = self.selection_model.get_selected_item()
+        print('FILE_INFO')
+        print(file_info)
+        print('\n')
+        if not file_info:
+            toast = Adw.Toast(title="Cannot open the file.", timeout=3)
+            toast_overlay.add_toast(toast)
+            return
+
+        file_name_short = file_info.get_name()
+        print('FILE_NAME_SHORT')
+        print(file_name_short)
+        print('\n')
+
+        if not self.library:
+            toast = Adw.Toast(title="No library path defined.", timeout=3)
+            toast_overlay.add_toast(toast)
+            return
+
+        full_file_path = os.path.join(self.library, file_name_short)
+        print('FULL_FILE_PATH')
+        print(full_file_path)
+        print('\n')
+
+        fb_choosen, _  = convert_xml_basic_fb(full_file_path, self.library)
+        if isinstance(self.get_current_tab_widget().current_page, FunctionBlockEditor):
+            fb_editor = self.get_current_tab_widget().current_page
+            fb_editor.selected_fb = fb_choosen
+        else:
+            print('not fb editor')
+            toast = Adw.Toast(title="Must be inside application editor to add type", timeout=3)
+            toast_overlay.add_toast(toast)
+            self.selected_tool = None
+
+    # ---------------- Function Block Tools --------------------
 
     def remove_function_block(self, widget):
         self.selected_tool = 'remove'
@@ -296,8 +349,22 @@ class FbeWindow(Adw.ApplicationWindow):
         self.selected_tool = 'inspect'
         print('inspect selected')
 
-    def set_tab_label_color(self, widget, color = 'label-black'):
+    def get_selected_tool(self):
+        return self.selected_tool
+    # ----------------------------------------------------------
 
+    # ------------------ Project Tab Methods -------------------
+
+    def on_notebookbook_create_window(self,notebookbook,widget,x,y):
+        # handler for dropping outside of notebookbook
+        new_window = self.props.application.add_window()
+
+        new_window.move(x, y)
+        new_window.show_all()
+        new_window.present()
+        return new_window.notebook
+
+    def set_tab_label_color(self, widget, color = 'label-black'):
         label = self.notebook.get_tab_label(widget)
         self.add_default_css_provider(label, color)
 
@@ -314,59 +381,48 @@ class FbeWindow(Adw.ApplicationWindow):
         notebook = self.notebook.insert_page(widget, Gtk.Label.new(title), -1)
         self.notebook.set_current_page(notebook)
         self.notebook.set_tab_detachable(widget, True)
-
         return notebook
 
-    def remove_tab(self, _id):
-        if _id < 0:
-            return False
+    # --------------- Methods to close a project tab ------------
 
-        self.notebook.set_current_page(_id)
+    def on_close_project_response(self, dialog, response, project_widget):
+        if response == "close":
+            # Close the project tab
+            page_num = self.notebook.page_num(project_widget)
+            self.notebook.remove_page(page_num)
+            current_page = self.notebook.get_current_page()
+            if current_page < 0:
+                self.labels_box.set_visible(True)
 
-        widget = self.notebook.get_nth_page(_id)
-        if widget.has_changes_to_save():
-            result = self._popup(widget.get_tab_name())
-            if result == Gtk.ResponseType.CANCEL:
-                return False
-            elif result == Gtk.ResponseType.APPLY:  # save
-                if not widget.save():
-                    if  not self._save_dialog(widget):
-                        return False
-        self.notebook.remove_page(_id)
-        return True
+    def close_project(self, action, param):
+        # Delete the actual project opened in the tab
+        current_page = self.notebook.get_current_page()
+        if current_page < 0:
+            toast = Adw.ToastOverlay()
+            toast.set_parent(self.vbox_window)
+            self.vbox_window.append(toast)
+            toast.add_toast(Adw.Toast(title="No tabs open", timeout=3))
+        else:
+            # Get the widget of the current tab
+            current_widget = self.notebook.get_nth_page(current_page)
 
-    def remove_current_tab(self, *args):
-        _id = self.notebook.get_current_page()
-        self.remove_tab(_id)
+            # Verify if is a project editor
+            if isinstance(current_widget, ProjectEditor):
+                # Create confirmation dialog
+                dialog = Adw.MessageDialog(
+                    transient_for=self,
+                    heading="Close Project",
+                    body="Are you sure you want to close this project?",
+                    close_response="cancel"
+                )
 
-    def remove_tabs(self):
-        while self.notebook.get_n_pages() > 0:
-            if self.remove_tab(0) == False:
-                return False  # at least one tab canceled
-        return True  # was able to close all tabs
+                dialog.add_response("cancel", "Cancel")
+                dialog.add_response("close", "Close")
+                dialog.set_response_appearance("close", Adw.ResponseAppearance.DESTRUCTIVE)
 
-    def get_current_tab_widget(self):
-        _id = self.notebook.get_current_page()
-        return self.notebook.get_nth_page(_id)
+                dialog.connect("response", self.on_close_project_response, current_widget)
+                dialog.present()
 
-    def on_notebookbook_create_window(self,notebookbook,widget,x,y):
-        # handler for dropping outside of notebookbook
-        new_window = self.props.application.add_window()
 
-        new_window.move(x, y)
-        new_window.show_all()
-        new_window.present()
-        return new_window.notebook
-
-    def on_notebookbook_page_removed(self, notebookbook, child, page):
-        if notebookbook.get_n_pages() == 0:
-            self.destroy()
-        return True
-
-    def on_close_tab(self, action, param):
-        self.remove_current_tab()
-
-    def get_selected_tool(self):
-        return self.selected_tool
 
 
