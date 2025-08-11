@@ -13,6 +13,7 @@ class SystemConfigEditor(PageMixin, Gtk.Box):
         
         self.system = system
         self.project = project
+        self.library = library
         self.enable_add = True
         self.current_tool = current_tool
         self.selected_device = None
@@ -161,7 +162,7 @@ class SystemConfigEditor(PageMixin, Gtk.Box):
         
     def type_text_edited(self, widget, path, new_type):
         resource = self.resources_liststore[path][3]
-        new_resource = convert_xml_resource('Projects/fbe3_gnome/src/models/fb_library/'+new_type+'.res')
+        new_resource = convert_xml_resource(self.library+new_type+'.res', self.library)
         if self.selected_device is None:
             self.last_selected_device.resource_change_type(resource, new_type, new_resource)            
         else:
@@ -245,17 +246,6 @@ class SystemConfigEditor(PageMixin, Gtk.Box):
         self._changes_to_save = True
         self.system_render.queue_draw()
 
-    def update_scrolled_window(self):
-        hadj = self.scrolled.get_hadjustment()
-        vadj = self.scrolled.get_vadjustment()
-
-        delta_x, delta_y = self.system_render.renderer_set_size_request(self.scrolled.get_allocation())
-
-        hadj.set_value(hadj.get_value() + delta_x)
-        vadj.set_value(vadj.get_value() + delta_y)
-        self.scrolled.set_hadjustment(hadj)
-        self.scrolled.set_vadjustment(vadj)
-    
     def update_scrolled_window(self):
         hadj = self.scrolled.get_hadjustment()
         vadj = self.scrolled.get_vadjustment()
