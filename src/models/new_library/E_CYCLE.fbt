@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="E_CYCLE" Comment="Peroidic event generator">
+ <Identification Standard="61499-1 Annex A" Classification="None" ApplicationDomain="None" Function="None" Type="None" Description="Copyright (c) 2017 fortiss GmbH
+ 
+This program and the accompanying materials are made
+available under the terms of the Eclipse Public License 2.0
+which is available at https://www.eclipse.org/legal/epl-2.0/
+
+SPDX-License-Identifier: EPL-2.0">
+ </Identification>
+ <VersionInfo Organization="fortiss GmbH" Version="1.0" Author="Alois Zoitl" Date="2024-08-06" Remarks="initial API and implementation and/or initial documentation">
+ </VersionInfo>
+ <InterfaceList>
+  <EventInputs>
+   <Event Name="START" Type="Event" Comment="Start the perodic generation of events">
+    <With Var="DT"/>
+   </Event>
+   <Event Name="STOP" Type="Event" Comment="Stop the generation of events"/>
+  </EventInputs>
+  <EventOutputs>
+   <Event Name="EO" Type="Event" Comment="Periodically triggered output event">
+   </Event>
+  </EventOutputs>
+  <InputVars>
+   <VarDeclaration Name="DT" Type="TIME" Comment="cycle time"/>
+  </InputVars>
+  <OutputVars>
+  </OutputVars>
+ </InterfaceList>
+   <FBNetwork>
+    <FB Name="E_DELAY" Type="E_DELAY" Comment="Delayed event propagation" x="300.0" y="-25.0">
+    </FB>
+    <EventConnections>

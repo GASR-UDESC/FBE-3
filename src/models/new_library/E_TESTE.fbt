@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FBType Name="E_TESTE" Comment="Event-Driven Down Counter">
+ <Identification Standard="61499-1-A.x" Classification="Event-driven blocks" ApplicationDomain="None" Function="Down-counter" Type="None" Description="Copyright (c) 2017 fortiss GmbH
+			     2019 Johannes Keppler University Linz
+ 
+This program and the accompanying materials are made
+available under the terms of the Eclipse Public License 2.0
+which is available at https://www.eclipse.org/legal/epl-2.0/
+
+SPDX-License-Identifier: EPL-2.0">
+ </Identification>
+ <VersionInfo Organization="JKU" Version="1.1" Author="Alois Zoitl" Date="2024-08-06" Remarks="fixed bug in down counting">
+ </VersionInfo>
+ <InterfaceList>
+  <EventInputs>
+   <Event Name="CD" Type="Event" Comment="Count Down"/>
+   <Event Name="LD" Type="Event" Comment="Load counter value">
+    <With Var="PV"/>
+   </Event>
+  </EventInputs>
+  <EventOutputs>
+   <Event Name="CDO" Type="Event" Comment="Count Down Output Event">
+    <With Var="Q"/>
+    <With Var="CV"/>
+   </Event>
+   <Event Name="LDO" Type="Event" Comment="Reset Output Event">
+    <With Var="Q"/>
+    <With Var="CV"/>
+   </Event>
+  </EventOutputs>
+  <InputVars>
+   <VarDeclaration Name="PV" Type="UINT" Comment="Preset Value"/>
+  </InputVars>
+  <OutputVars>
+   <VarDeclaration Name="Q" Type="BOOL" Comment="CV <= 0"/>
+   <VarDeclaration Name="CV" Type="UINT" Comment=""/>
+  </OutputVars>
+ </InterfaceList>
+ <BasicFB>
+  <ECC>
+   <ECState Comment="" Name="START" x="120.0" y="95.0"/>
+   <ECState Comment="" Name="CD" x="432.5" y="95.0">
+    <ECAction Algorithm="CD" Output="CDO"/>
+   </ECState>
+   <ECState Comment="" Name="LD" x="225.0" y="305.0">
+    <ECAction Algorithm="LD" Output="LDO"/>
+   </ECState>
+   <ECTransition Comment="" Condition="CD[CV > 0]" Destination="CD" Source="START" x="1035.0" y="460.0"/>
+   <ECTransition Comment="" Condition="1" Destination="START" Source="CD" x="630.0" y="90.0"/>
+   <ECTransition Comment="" Condition="LD" Destination="LD" Source="START" x="395.0" y="510.0"/>
+   <ECTransition Comment="" Condition="1" Destination="START" Source="LD" x="240.0" y="610.0"/>
+  </ECC>
+  <Algorithm Name="LD" Comment="Load">
+   <ST Text="CV := PV;
+Q:= (CV = 0);
+"/>
+  </Algorithm>
+  <Algorithm Name="CD" Comment="Count Down">
+   <ST Text="CV := CV - 1;
+Q := (CV = 0);
+
+"/>
+  </Algorithm>
+ </BasicFB>
+</FBType>

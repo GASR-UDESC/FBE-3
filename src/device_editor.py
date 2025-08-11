@@ -9,4 +9,4 @@ class DeviceEditor(PageMixin, Gtk.Box):
         
         self.device = device
         self.current_tool = current_tool
-        
+
