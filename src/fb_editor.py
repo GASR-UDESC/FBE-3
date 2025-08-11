@@ -411,8 +411,6 @@ class FunctionBlockEditor(PageMixin, Gtk.Box):
         tool = window.get_selected_tool()
         if tool != 'add':
             fb = self.fb_render.get_fb_at(x, y)
-        #if fb is not None:
-            #print(fb.name)
 
         if tool == 'add':
             new_fb = self.selected_fb
