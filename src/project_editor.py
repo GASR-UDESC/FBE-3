@@ -67,7 +67,7 @@ class ProjectEditor(PageMixin, Gtk.Box):
         self.project_bar.pack_start(self.project_menu_button)
         self.project_bar.pack_start(self.current_page_label)
           
-
+    # -------------- Methods to create actions ----------------------
     def _create_action(self, action_name, callback, *args):
         action = Gio.SimpleAction.new(action_name, None)
         if not args:
@@ -82,7 +82,9 @@ class ProjectEditor(PageMixin, Gtk.Box):
         action_label = label+suffix
         self._create_action(action_label, callback, elem)
         menu.append(label, "win."+action_label)
+    # ---------------------------------------------------------------
         
+    # System configuration method
     def build_system_config_menu(self):
         for dev in self.system.devices:
             self._action_append_menu(self.sys_config_submenu, dev, '-dev', self.on_application_editor)
@@ -168,6 +170,18 @@ class ProjectEditor(PageMixin, Gtk.Box):
                 return editor
         return None
 
+    def on_device_editor(self, project):
+        dev_editor = SystemConfigEditor(system = self.system, project = project, library=self.library)
+        self.last_page = self.current_page
+        self.current_page = dev_editor
+        self.vpaned.set_end_child(self.current_page)
+
+    def on_resource_editor(self, resource, project):
+        resource_editor = FunctionBlockEditor(fb_diagram=resource.fb_network, project=project)
+        self.last_page = self.current_page
+        self.current_page = resource_editor
+        self.vpaned.set_end_child(self.current_page)
+
     def goto_last_page(self, action, param=None):
         if self.last_page is not None:
             current_page_label = self.current_page_label.get_label()
@@ -178,6 +192,7 @@ class ProjectEditor(PageMixin, Gtk.Box):
             self.last_page_label = current_page_label
             self.vpaned.set_end_child(self.current_page)
             
+    # Project exportation method
     def on_export_project(self, action, param=None):
         self.last_page = self.current_page
         self.last_page_label = self.current_page_label.get_label()
@@ -221,12 +236,14 @@ class ProjectEditor(PageMixin, Gtk.Box):
         bytes = GLib.Bytes.new(text.encode('utf-8'))
 
         # Start the asynchronous operation to save the data into the file
-        file.replace_contents_bytes_async(bytes,
-                                          None,
-                                          False,
-                                          Gio.FileCreateFlags.NONE,
-                                          None,
-                                          self.save_file_complete)
+        file.replace_contents_bytes_async(
+            bytes,
+            None,
+            False,
+            Gio.FileCreateFlags.NONE,
+            None,
+            self.save_file_complete
+        )
 
     def save_file_complete(self, file, result):
         res = file.replace_contents_finish(result)
@@ -256,4 +273,4 @@ class ProjectEditor(PageMixin, Gtk.Box):
         if self.selected_fb is not None:
             return self.selected_fb.get_name()
         return self
-    
+
