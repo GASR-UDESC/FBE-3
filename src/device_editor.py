@@ -1,3 +1,5 @@
+import gi
+
 from gi.repository import Gio, Gdk, Gtk, Adw
 
 gi.require_version('Gtk', '4.0')
