@@ -1,7 +1,8 @@
-from gi.repository import Gtk
 import gi
 import math
 import cairo
+
+from gi.repository import Gtk
 
 gi.require_version('Gtk', '4.0')
 
