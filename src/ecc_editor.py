@@ -28,12 +28,19 @@ class EccEditor(PageMixin, Gtk.Box):
         self.scrolled = Gtk.ScrolledWindow.new()
         self.ecc_render = EccRenderer(self.fb)
         self.box_bottom = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.FILL, valign=Gtk.Align.FILL)
-        self.box_side = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, halign=Gtk.Align.FILL)
         self.gesture_press = Gtk.GestureClick.new()
         self.gesture_release = Gtk.GestureClick.new()
         self.event_controller = Gtk.EventControllerMotion.new()
         self.box_bottom.set_homogeneous(True)
-        
+
+        # Usando Gtk.Stack para gerenciar abas na barra lateral
+        self.box_side_stack = Gtk.Stack(halign=Gtk.Align.FILL)
+        self.box_side_switcher = Gtk.StackSwitcher(stack=self.box_side_stack, halign=Gtk.Align.CENTER)
+        self.box_side = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, valign=Gtk.Align.FILL)
+        self.box_side.append(self.box_side_switcher)
+        self.box_side.append(self.box_side_stack)
+
+
         self.paned_side.set_vexpand(True)
         self.paned_side.set_hexpand(True)
         self.paned_side.set_start_child(self.paned)
@@ -56,7 +63,12 @@ class EccEditor(PageMixin, Gtk.Box):
         self.ecc_render.renderer_set_size_request(self.scrolled.get_allocation())
 
         self.build_bottom_treeview()
-        self.build_side_treeview()
+        #self.build_side_treeview()
+
+        # Criar os painéis das abas
+        self.build_states_and_actions_panel()
+        self.build_algorithms_panel()
+        self.build_simulation_panel()
         
         self.gesture_press.connect("pressed", self.button_press)
         self.gesture_release.connect("released", self.button_release)
@@ -69,6 +81,229 @@ class EccEditor(PageMixin, Gtk.Box):
 
         self.ecc_render.set_draw_func(self.on_draw, None)
         
+        '''
+        ALTERAÇÃO
+        '''
+
+
+
+    def build_states_and_actions_panel(self):
+
+        panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+
+        # Painel de Estados
+        self.states_liststore = Gtk.ListStore(str, bool, object)
+        self.states_treeview = Gtk.TreeView(model=self.states_liststore)
+        self.states_treeview_selection = self.states_treeview.get_selection()
+        self.states_treeview_selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.states_treeview.set_enable_search(False)
+        state_editabletext = Gtk.CellRendererText()
+        state_editabletext.set_property('editable', True)
+        state_editabletext.connect('edited', self.state_text_edited)
+        state_column = Gtk.TreeViewColumn('State', state_editabletext, text=0)
+        self.states_treeview.append_column(state_column)
+        renderer_toggle_1 = Gtk.CellRendererToggle()
+        column_toggle_1 = Gtk.TreeViewColumn('Initial', renderer_toggle_1, active=1)
+        self.states_treeview.append_column(column_toggle_1)
+        self.states_treeview.set_vexpand(True)
+        self.states_treeview.set_hexpand(True)
+        panel.append(self.states_treeview)
+        self.state_add_button = Gtk.Button(label="Add State")
+        self.state_add_button.connect('clicked', self.state_add)
+        panel.append(self.state_add_button)
+        self.delete_button = Gtk.Button(label="Remove State")
+        self.delete_button.connect('clicked', self.state_remove)
+        panel.append(self.delete_button)
+
+        # Painel de Ações
+        self.actions_liststore = Gtk.ListStore(str, str, str, object)
+        self.actions_treeview = Gtk.TreeView(model=self.actions_liststore)
+        self.actions_treeview_selection = self.actions_treeview.get_selection()
+        self.actions_treeview_selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.actions_treeview.set_enable_search(False)
+        renderer_text_1 = Gtk.CellRendererText()
+        renderer_text_1.set_property('editable', True)
+        renderer_text_1.connect('edited', self.algorithm_change)
+        column_text_1 = Gtk.TreeViewColumn("Algorithm", renderer_text_1, text=0)
+        self.actions_treeview.append_column(column_text_1)
+        renderer_text_2 = Gtk.CellRendererText()
+        renderer_text_2.set_property('editable', True)
+        renderer_text_2.connect('edited', self.event_output_change)
+        column_text_2 = Gtk.TreeViewColumn("Output Event", renderer_text_2, text=1)
+        self.actions_treeview.append_column(column_text_2)
+        renderer_text_3 = Gtk.CellRendererText()
+        renderer_text_3.set_property('editable', True)
+        renderer_text_3.connect('edited', self.state_change)
+        column_text_3 = Gtk.TreeViewColumn("State", renderer_text_3, text=2)
+        self.actions_treeview.append_column(column_text_3)
+        self.actions_treeview.set_vexpand(True)
+        self.actions_treeview.set_hexpand(True)
+        panel.append(self.actions_treeview)
+        self.action_add_button = Gtk.Button(label="Add Action")
+        self.action_add_button.connect('clicked', self.action_add)
+        panel.append(self.action_add_button)
+        self.action_delete_button = Gtk.Button(label="Remove Action")
+        self.action_delete_button.connect('clicked', self.action_remove)
+        panel.append(self.action_delete_button)
+
+        self.box_side_stack.add_titled(panel, "states_actions", "Estados/Ações")
+
+        #self.states_treeview.connect("row-selected", self.on_row_selected_ecc)
+
+    def build_algorithms_panel(self):
+
+        panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
+        self.algorithm_liststore = Gtk.ListStore(str, str, object)
+        self.algorithm_treeview = Gtk.TreeView(model=self.algorithm_liststore)
+        self.algorithm_treeview_selection = self.algorithm_treeview.get_selection()
+        self.algorithm_treeview_selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.algorithm_treeview.set_enable_search(False)
+        renderer_text_1 = Gtk.CellRendererText()
+        renderer_text_1.set_property('editable', True)
+        renderer_text_1.connect('edited', self.algorithm_name_edited)
+        column_text_1 = Gtk.TreeViewColumn("Name", renderer_text_1, text=0)
+        self.algorithm_treeview.append_column(column_text_1)
+        algorithm_text = Gtk.CellRendererText()
+        algorithm_text.set_property('editable', True)
+        algorithm_text.connect('edited', self.algorithm_str_edited)
+        column_text_3 = Gtk.TreeViewColumn("Algorithm", algorithm_text, text=1)
+        self.algorithm_treeview.append_column(column_text_3)
+        self.algorithm_treeview.set_vexpand(True)
+        self.algorithm_treeview.set_hexpand(True)
+        panel.append(self.algorithm_treeview)
+        self.add_button = Gtk.Button(label="Add Algorithm")
+        self.add_button.connect('clicked', self.algorithm_add)
+        panel.append(self.add_button)
+        self.delete_button = Gtk.Button(label="Remove Algorithm")
+        self.delete_button.connect('clicked', self.algorithm_remove)
+        panel.append(self.delete_button)
+
+        self.box_side_stack.add_titled(panel, "algorithms", "Algoritmos")
+
+    def build_simulation_panel(self):
+        # Novo painel de simulação
+        panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, margin_start=10, margin_end=10, margin_top=10, margin_bottom=10)
+
+        # Rótulo do estado atual
+        self.current_state_label = Gtk.Label(label=f"Estado Atual: {self.ecc.current_state.name if self.ecc.current_state else 'N/A'}")
+        panel.append(self.current_state_label)
+
+        # Seção de entradas
+        input_frame = Gtk.Frame(label="Entradas")
+        self.input_grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+        input_frame.set_child(self.input_grid)
+        panel.append(input_frame)
+
+        # Seção de saídas
+        output_frame = Gtk.Frame(label="Saídas")
+        self.output_grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+        output_frame.set_child(self.output_grid)
+        panel.append(output_frame)
+
+        # Botão de execução
+        self.run_button = Gtk.Button(label="Executar ECC")
+        self.run_button.connect("clicked", self.on_run_ecc)
+        panel.append(self.run_button)
+
+        self.box_side_stack.add_titled(panel, "simulation", "Simulação")
+        self.update_simulation_panel()
+
+    def update_simulation_panel(self):
+        # Limpar grids antes de preenchê-los
+        for child in self.input_grid.observe_children():
+            self.input_grid.remove(child)
+        for child in self.output_grid.observe_children():
+            self.output_grid.remove(child)
+
+        row = 0
+        # Adicionar inputs (eventos e variáveis)
+        self.input_widgets = {}
+        for event in self.fb.events:
+            if event.is_input:
+                label = Gtk.Label(label=event.name, halign=Gtk.Align.START)
+                button = Gtk.Button(label="Disparar")
+                button.connect("clicked", self.on_run_ecc, event.name)
+                self.input_grid.attach(label, 0, row, 1, 1)
+                self.input_grid.attach(button, 1, row, 1, 1)
+                row += 1
+
+        for var in self.fb.variables:
+            if var.is_input:
+                label = Gtk.Label(label=var.name, halign=Gtk.Align.START)
+                entry = Gtk.Entry()
+                if var.value is not None:
+                    entry.set_text(str(var.value))
+                entry.connect("changed", self.on_variable_changed, var)
+                self.input_grid.attach(label, 0, row, 1, 1)
+                self.input_grid.attach(entry, 1, row, 1, 1)
+                self.input_widgets[var.name] = entry
+                row += 1
+
+        row = 0
+        # Adicionar outputs (eventos e variáveis)
+        self.output_widgets = {}
+        for event in self.fb.events:
+            if not event.is_input:
+                label = Gtk.Label(label=event.name, halign=Gtk.Align.START)
+                state_label = Gtk.Label(label="Ativo" if event.active else "Inativo", halign=Gtk.Align.START)
+                self.output_grid.attach(label, 0, row, 1, 1)
+                self.output_grid.attach(state_label, 1, row, 1, 1)
+                self.output_widgets[event.name] = state_label
+                row += 1
+
+        for var in self.fb.variables:
+            if var.is_output:
+                label = Gtk.Label(label=var.name, halign=Gtk.Align.START)
+                value_label = Gtk.Label(label=str(var.value) if var.value is not None else "N/A", halign=Gtk.Align.START)
+                self.output_grid.attach(label, 0, row, 1, 1)
+                self.output_grid.attach(value_label, 1, row, 1, 1)
+                self.output_widgets[var.name] = value_label
+                row += 1
+
+    def on_run_ecc(self, button, event_name=None):
+        if not self.ecc.current_state:
+            print("Nenhum estado inicial definido.")
+            return
+
+        print(f"Executando ECC com evento de entrada: '{event_name}'")
+        self.ecc.execute_with_input(event_name)
+        self.update_simulation_panel()
+        self.trigger_change()
+
+    def on_variable_changed(self, entry, variable):
+        try:
+            # Converte o valor de entrada para o tipo da variável
+            new_value = entry.get_text()
+            if variable.type:
+
+                type_map = {
+                    "BOOL": bool, "STRING": str, "REAL": float, "UINT": int, "ANY_ELEMENTARY": int, "TIME": float
+                }
+                var_type = type_map.get(variable.type, str)
+                variable.value = var_type(new_value)
+            else:
+                variable.value = new_value
+            print(f"Variável '{variable.name}' alterada para: {variable.value}")
+        except ValueError:
+            print(f"Entrada inválida. Digite um valor válido para o tipo '{variable.type}'.")
+
+    def update_ecc_display(self):
+        self.current_state_label.set_label(f"Estado Atual: {self.ecc.current_state.name}")
+        self.update_simulation_panel()
+
+    def on_row_selected_ecc(self, listbox, row):
+        if row:
+            label = row.get_child().get_label()
+            state = self.ecc.state_get(label)
+            self.ecc.current_state = state
+            self.update_ecc_display()
+
+    '''
+    FIM ALTERAÇÃO
+    '''
+
     def build_side_treeview(self):
         
         #  | -------------- STATE --------------- |

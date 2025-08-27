@@ -407,6 +407,40 @@ class ExecutionControlChart():
             return True
         return False
 
+    def execute_with_input(self, input_event_name):
+        """
+        Executa a lógica do ECC com base em um evento de entrada.
+
+        Args:
+            input_event_name (str): O nome do evento de entrada que disparou a execução.
+        """
+        # 1. Encontrar o evento de entrada correspondente
+        input_event = self.fb.event_get(input_event_name)
+        if not input_event or not input_event.is_input:
+            print(f"Erro: Evento de entrada '{input_event_name}' não encontrado ou não é um evento de entrada.")
+            return
+
+        # 2. Avaliar as transições de saída do estado atual
+        found_transition = None
+        for transition in self.current_state.out_transitions:
+            # Verifica se a transição é ativada pelo evento de entrada
+            if transition.event and transition.event.name == input_event_name:
+                # E verifica se a condição da transição é verdadeira
+                if transition.strip_condition():
+                    found_transition = transition
+                    break
+
+        if found_transition:
+            print(f"Transição encontrada do estado '{self.current_state.name}' para o estado '{found_transition.to_state.name}'.")
+
+            # 3. Executar ações do estado atual e atualizar o estado
+            self.current_state.run_actions()
+            self.update_current_state(found_transition)
+            print(f"Novo estado atual: '{self.current_state.name}'.")
+        else:
+            print(f"Nenhuma transição válida encontrada a partir do estado '{self.current_state.name}' para o evento '{input_event_name}'.")
+
+
 class FunctionBlock():
     event_class = Event
     variable_class = Variable
