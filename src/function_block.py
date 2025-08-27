@@ -276,7 +276,7 @@ class Transition():
         elif self.condition[0] == None and self.condition[3] != None:
             condition_str = '['+self.condition[1].name + ' ' + self.condition[2] + ' ' + self.condition[3] +']'
         else:
-            condition_str = self.condition[0].name+'['+self.condition[1].name + ' ' + self.condition[2] + ' ' + self.condition[3] +']'
+            condition_str = self.condition[0].name+'['+self.condition[1].name + ' ' + self.condition[2].name + ' ' + self.condition[3].name +']'
             
         return condition_str    
 
