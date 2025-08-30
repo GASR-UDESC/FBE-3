@@ -214,6 +214,12 @@
     </section>
     <section>
       <item>
+        <attribute name="label" translatable="yes">_Close Project</attribute>
+        <attribute name="action">win.close-project</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="label" translatable="yes">_Save</attribute>
         <attribute name="action">win.save-project</attribute>
       </item>
