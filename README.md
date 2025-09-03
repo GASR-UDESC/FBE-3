@@ -33,7 +33,7 @@ An application for modelling function blocks based on IEC 61499.
 
 ## How to use:
 #### When no project is open, this is what the application looks like:
-!["No project open."](https://github.com/user-attachments/assets/063bae90-5ae6-4098-8046-632c894e5f50)
+<img width="1000px" alt="No project open" src="pictures/home.png">
 
 #### On the left side there's the editor workspace with basic tools like add, move, inspect, delete and connect. 
 ![editorworkspace](https://github.com/user-attachments/assets/ba16acda-1554-4ab0-b3c4-74049b2f5d5c)
