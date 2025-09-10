@@ -27,7 +27,9 @@ cur_path = os.path.realpath(__file__)
 base_path = os.path.dirname(os.path.dirname(cur_path))
 sys.path.insert(1, base_path)
 from .fb_editor import FunctionBlockEditor
+from .function_block import FunctionBlock
 from .project_editor import ProjectEditor
+from .simulator_editor import SimulatorEditor
 from .xmlParser import *
 
 @Gtk.Template(resource_path='/com/lapas/Fbe/window.ui')
@@ -66,7 +68,12 @@ class FbeWindow(Adw.ApplicationWindow):
         add_type_action.connect("activate", self.add_fb_dialog)
         self.add_action(add_type_action)
         
-        # ---------- Make tool frame's border square ---------- #  
+        open_simulator_action = Gio.SimpleAction(name="open-simulator")
+        open_simulator_action.connect("activate", self.open_simulator)
+        self.add_action(open_simulator_action)
+
+
+        # ---------- Make tool frame's border square ---------- #
         css_provider = Gtk.CssProvider()
         css_provider.load_from_data(b".squared {border-radius: 0;}")
         Gtk.StyleContext.add_provider_for_display(
@@ -134,7 +141,7 @@ class FbeWindow(Adw.ApplicationWindow):
         self.gesture_press.connect("pressed", self.on_add_library_fb)
         self.list_view.add_controller(self.gesture_press)
 
-        self.library = "/home/taques/FBE-3/src/models/fb_library/"
+        self.library = "/home/tqs/FBE-3/src/models/fb_library/"
         self.actual_folder = None
 
     def create_list_factory(self):
@@ -422,6 +429,41 @@ class FbeWindow(Adw.ApplicationWindow):
 
                 dialog.connect("response", self.on_close_project_response, current_widget)
                 dialog.present()
+
+    def open_simulator(self, action, param):
+        """
+        Abre uma nova aba com o simulador de ECC.
+        Se j\u00e1 estiver aberta, apenas navega para ela.
+        """
+        # Verifica se j\u00e1 existe uma aba para o simulador
+        simulator_widget = None
+        for i in range(self.notebook.get_n_pages()):
+            page_widget = self.notebook.get_nth_page(i)
+            # A classe tem que ser SimulationEditor, ou um supertipo
+            if isinstance(page_widget, SimulatorEditor):
+                simulator_widget = page_widget
+                break
+
+        # Se a aba do simulador j\u00e1 existe, navegue para ela
+        if simulator_widget:
+            page_num = self.notebook.page_num(simulator_widget)
+            self.notebook.set_current_page(page_num)
+        else:
+            # Caso contr\u00e1rio, crie uma nova aba para o simulador
+            # O fb precisa ser um objeto FunctionBlock v\u00e1lido
+            # Voc\u00ea precisaria obter o fb do projeto atualmente aberto
+            # Por enquanto, assumimos que um fb est\u00e1 dispon\u00edvel
+
+            # TODO: Obter o FunctionBlock atual do projeto aberto
+            # Exemplo: fb = self.get_current_project_fb()
+
+            # Para testar, vamos criar um FB de exemplo
+            fb_to_simulate = FunctionBlock(name="Simulador Exemplo")
+
+            simulator_editor = SimulationEditor(fb_to_simulate)
+            self.add_tab(simulator_editor, "Simulador")
+            self.notebook.set_visible(True)
+            self.labels_box.set_visible(False)
 
 
 
