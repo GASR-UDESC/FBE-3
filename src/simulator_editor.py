@@ -68,8 +68,6 @@ class SimulatorEditor(PageMixin, Gtk.Box):
 
         self.append(self.paned)
 
-        # Call the bottom box building methods
-        self.build_bottom_treeview()
         # Call the method to update the simulation panel
         self.update_simulation_panel()
 

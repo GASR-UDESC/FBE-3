@@ -41,7 +41,8 @@ fbe_sources = [
   'project_editor.py',
   'system_config_editor.py',
   'system_renderer.py',
-  'export.py'
+  'export.py',
+  'simulator_editor.py'
 ]
 
 install_data(fbe_sources, install_dir: moduledir)

@@ -460,7 +460,7 @@ class FbeWindow(Adw.ApplicationWindow):
             # Para testar, vamos criar um FB de exemplo
             fb_to_simulate = FunctionBlock(name="Simulador Exemplo")
 
-            simulator_editor = SimulationEditor(fb_to_simulate)
+            simulator_editor = SimulatorEditor(fb_to_simulate)
             self.add_tab(simulator_editor, "Simulador")
             self.notebook.set_visible(True)
             self.labels_box.set_visible(False)
