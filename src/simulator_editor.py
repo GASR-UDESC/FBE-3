@@ -64,7 +64,7 @@ class SimulatorEditor(PageMixin, Gtk.Box):
         self.paned.set_end_child(self.box_side)
         self.paned.set_resize_end_child(False)
         self.paned.set_shrink_end_child(False)
-        self.paned.set_position(2000)
+        self.paned.set_position(1450)
 
         self.append(self.paned)
 
@@ -92,7 +92,7 @@ class SimulatorEditor(PageMixin, Gtk.Box):
         self.current_state_label = Gtk.Label(label="Estado Atual: N/A", halign=Gtk.Align.START)
         self.box_side.append(self.current_state_label)
 
-        input_frame = Gtk.Frame(label="Entradas")
+        input_frame = Gtk.Frame(label="Evento de Entrada")
         self.input_grid = Gtk.Grid(column_spacing=10, row_spacing=5, margin_start=5, margin_end=5)
         input_frame.set_child(self.input_grid)
         self.box_side.append(input_frame)

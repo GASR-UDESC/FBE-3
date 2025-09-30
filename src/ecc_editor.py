@@ -2,6 +2,7 @@ import gi
 
 from .function_block import FunctionBlock, ExecutionControlChart, State, Transition
 from .ecc_renderer import EccRenderer
+from .simulator_editor import SimulatorEditor
 from .base import PageMixin
 
 gi.require_version('Gtk', '4.0')
@@ -12,11 +13,12 @@ class EccEditor(PageMixin, Gtk.Box):
     ecc : ExecutionControlChart
     selected_state : State
     selected_transition : Transition
-    def __init__(self, fb, current_tool=None, *args, **kwargs):
+    def __init__(self, fb, project=None, current_tool=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fb = fb
         self.ecc = fb.get_ecc()
+        self.project = project
         self.current_tool = current_tool
         self.selected_state = None
         self.selected_action = None
@@ -220,6 +222,13 @@ class EccEditor(PageMixin, Gtk.Box):
         self.box_side.append(self.delete_button)
 
         #  | --------------------------------------- |
+
+        self.simulate_button = Gtk.Button(label = "Simulate")
+        self.simulate_button.connect('clicked', self.open_simulator)
+        self.box_side.append(self.simulate_button)
+
+        #  | --------------------------------------- |
+
         if self.ecc is not None:
             self.update_side_treeview()
 
@@ -567,6 +576,20 @@ class EccEditor(PageMixin, Gtk.Box):
         if tool_name == 'move':
             self.update_scrolled_window()
             self.selected_state = None
+
+    def open_simulator(self, _widget=None):
+        current_fb = self.fb
+
+        simulator_editor = SimulatorEditor(current_fb)
+        self.project.last_page = self.project.current_page
+        self.project.last_page_label = self.project.current_page_label.get_label()
+        self.project.current_page = simulator_editor
+        self.project.vpaned.set_end_child(simulator_editor)
+        self.project.current_page_label.set_label('Simulate: ' + current_fb.name)
+
+        self.update_treeview()
+        self.trigger_change()
+        self.fb_render.queue_draw()
 
     def update_scrolled_window(self):
         hadj = self.scrolled.get_hadjustment()

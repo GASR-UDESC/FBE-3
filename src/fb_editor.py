@@ -464,7 +464,7 @@ class FunctionBlockEditor(PageMixin, Gtk.Box):
                 self.project.vpaned.set_end_child(fb_editor)
                 self.project.current_page_label.set_label('Inspecting: ' + fb.name)
             elif fb.is_basic():
-                ecc_editor = EccEditor(fb, self.current_tool)
+                ecc_editor = EccEditor(fb, self.project, self.current_tool)
                 self.project.last_page = self.project.current_page
                 self.project.last_page_label = self.project.current_page_label.get_label()
                 self.project.current_page = ecc_editor
