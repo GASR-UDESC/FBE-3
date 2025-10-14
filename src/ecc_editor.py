@@ -587,9 +587,8 @@ class EccEditor(PageMixin, Gtk.Box):
         self.project.vpaned.set_end_child(simulator_editor)
         self.project.current_page_label.set_label('Simulate: ' + current_fb.name)
 
-        self.update_treeview()
         self.trigger_change()
-        self.fb_render.queue_draw()
+        self.ecc_render.queue_draw()
 
     def update_scrolled_window(self):
         hadj = self.scrolled.get_hadjustment()

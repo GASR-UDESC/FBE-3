@@ -17,6 +17,7 @@ class SimulatorEditor(PageMixin, Gtk.Box):
 
         self.fb = fb
         self.ecc = fb.get_ecc()
+        self.transitions = ecc.transitions
         self.current_tool = current_tool
         self.selected_state = None
         self.selected_action = None
@@ -163,7 +164,11 @@ class SimulatorEditor(PageMixin, Gtk.Box):
                 self.output_widgets[var.name] = value_label
                 row += 1
 
-    def on_run_ecc(self, button, event_name=None):
+    def on_run_ecc(self, button):
+        for event in self.fb.events:
+            if event.is_input:
+                event_name = event.name
+
         if not self.ecc.current_state:
             print("Nenhum estado inicial definido.")
             return
@@ -305,3 +310,4 @@ class SimulatorEditor(PageMixin, Gtk.Box):
         vadj.set_value(vadj.get_value() + delta_y)
         self.scrolled.set_hadjustment(hadj)
         self.scrolled.set_vadjustment(vadj)
+

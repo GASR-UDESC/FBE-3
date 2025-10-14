@@ -238,7 +238,7 @@ class Transition():
         self.event = event
         
     def strip_condition(self):
-        op = {'&gt;': lambda x, y: x > y,  
+        op = {'&gt;': lambda x, y: x > y,
               '&lt;': lambda x, y: x < y,
               '&gt;=': lambda x, y: x >= y,
               '&lt;=': lambda x, y: x <= y,
@@ -416,6 +416,7 @@ class ExecutionControlChart():
         """
         # 1. Encontrar o evento de entrada correspondente
         input_event = self.fb.event_get(input_event_name)
+
         if not input_event or not input_event.is_input:
             print(f"Erro: Evento de entrada '{input_event_name}' não encontrado ou não é um evento de entrada.")
             return
