@@ -378,6 +378,10 @@ class ExecutionControlChart():
 
     # |--------------- TRANSITION FUNCTIONS ---------------|
 
+    def get_transitions(self):
+        if self.transitions is not None:
+            return self.transitions
+
     def transition_add(self, transition):
         #transition = self.transition_class(*args, **kwargs)
         self.transitions.append(transition)

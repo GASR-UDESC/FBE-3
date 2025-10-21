@@ -17,7 +17,7 @@ class SimulatorEditor(PageMixin, Gtk.Box):
 
         self.fb = fb
         self.ecc = fb.get_ecc()
-        self.transitions = ecc.transitions
+        self.transitions = ecc.get_transitions()
         self.current_tool = current_tool
         self.selected_state = None
         self.selected_action = None
