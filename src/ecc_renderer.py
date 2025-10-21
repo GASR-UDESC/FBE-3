@@ -208,6 +208,19 @@ class EccRenderer(Gtk.DrawingArea):
 
 
         for transition in self.ecc.transitions:
+            # Verificar se esta é a última transição executada
+            is_last_executed = (self.ecc.last_executed_transition and 
+                              transition.from_state == self.ecc.last_executed_transition.from_state and
+                              transition.to_state == self.ecc.last_executed_transition.to_state)
+            
+            # Definir cor e espessura da linha
+            if is_last_executed:
+                cr.set_source_rgb(255/255, 140/255, 0)  # Laranja para a transição executada
+                cr.set_line_width(2.5)
+            else:
+                cr.set_source_rgb(2/255, 132/255, 130/255)
+                cr.set_line_width(1.2)
+                
             print(f'From state[{transition.from_state.x, transition.from_state.y}]: {transition.from_state.name}\nTo state[{transition.to_state.x, transition.to_state.y}]: {transition.to_state.name}')
             source_state, destination_state = transition.from_state, transition.to_state
             source_x, source_y = source_state.x, source_state.y
@@ -312,7 +325,19 @@ class EccRenderer(Gtk.DrawingArea):
         # cr.set_source_rgb(1, 1, 1)  
         # cr.paint()
         for state in self.ecc.states:
-            if state.is_initial:
+            # Desenha o estado atual (ativo) com uma cor especial
+            if state.is_active and self.ecc.current_state and state.name == self.ecc.current_state.name:
+                x, y = self.draw_state(cr, wid, state, txt_color=(255/255, 255/255, 255/255), rec_color=(50/255, 200/255, 50/255))
+                # Preencher o estado ativo com cor de destaque
+                state_x, state_y = self.get_state_position(state)
+                radius, width, height = self.get_state_dimensions(state)
+                cr.set_source_rgba(50/255, 200/255, 50/255, 0.3)
+                cr.rectangle(state_x - radius, state_y, radius*2, height*2)
+                cr.fill()
+                # Redesenhar o texto por cima
+                cr.set_source_rgb(0, 0, 0)
+                self.write_txt(cr, state.name, state_x, state_y, font_weight=cairo.FONT_WEIGHT_BOLD)
+            elif state.is_initial:
                 x, y = self.draw_state(cr, wid, state, rec_color=(20/255, 80/255, 250/255))
             else:
                 x, y = self.draw_state(cr, wid, state, txt_color=(81/255, 165/255, 186/255), rec_color=(107/255, 202/255, 226/255))

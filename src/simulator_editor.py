@@ -16,8 +16,12 @@ class SimulatorEditor(PageMixin, Gtk.Box):
         super().__init__(*args, **kwargs)
 
         self.fb = fb
-        self.ecc = fb.get_ecc()
-        self.transitions = ecc.get_transitions()
+        self.ecc = ExecutionControlChart(self,fb)
+        self.transitions = self.ecc.get_transitions()
+
+        # Inicializar o estado atual (estado inicial)
+        self.ecc.initialize_current_state()
+
         self.current_tool = current_tool
         self.selected_state = None
         self.selected_action = None
@@ -71,6 +75,10 @@ class SimulatorEditor(PageMixin, Gtk.Box):
 
         # Call the method to update the simulation panel
         self.update_simulation_panel()
+
+        # Atualizar o label do estado atual após inicialização
+        if self.ecc.current_state:
+            self.current_state_label.set_label(f"Estado Atual: {self.ecc.current_state.name}")
 
         # Gestures and controllers
         self.gesture_press.connect("pressed", self.button_press)
@@ -164,19 +172,34 @@ class SimulatorEditor(PageMixin, Gtk.Box):
                 self.output_widgets[var.name] = value_label
                 row += 1
 
-    def on_run_ecc(self, button):
-        for event in self.fb.events:
-            if event.is_input:
-                event_name = event.name
+    def on_run_ecc(self, button, event_name=None):
+        # Se event_name não foi passado, pegar o primeiro evento de entrada
+        if event_name is None:
+            for event in self.fb.events:
+                if event.is_input:
+                    event_name = event.name
+                    break
 
         if not self.ecc.current_state:
-            print("Nenhum estado inicial definido.")
-            return
+            # Tentar inicializar o estado atual
+            '''
+            if not self.ecc.initialize_current_state():
+                print("Erro: Nenhum estado foi definido no ECC. Adicione estados primeiro.")
+                return
+            '''
+            self.ecc.current_state.name = 'S'
+            # Atualizar a interface após inicialização
+            if self.ecc.current_state:
+                self.current_state_label.set_label(f"Estado Atual: {self.ecc.current_state.name}")
+                self.trigger_change()
 
         print(f"Executando ECC com evento de entrada: '{event_name}'")
         self.ecc.execute_with_input(event_name)
+
+        # Atualizar a interface gráfica
+        self.update_ecc_display()
+        self.trigger_change()  # Redesenhar o ECC
         self.update_simulation_panel()
-        self.update_bottom_treeview()
 
     def on_variable_changed(self, entry, variable):
         try:

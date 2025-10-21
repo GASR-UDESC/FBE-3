@@ -330,6 +330,30 @@ class ExecutionControlChart():
         self.states = list() 
         self.transitions = list()
         self.current_state = None
+        self.last_executed_transition = None  # Para destacar a última transição executada
+        
+    def initialize_current_state(self):
+        """
+        Inicializa o current_state com o primeiro estado marcado como is_initial.
+        Se nenhum estado inicial for encontrado, define o primeiro estado como inicial.
+        """
+        # Procurar por um estado inicial
+        for state in self.states:
+            if state.is_initial:
+                self.current_state = state
+                state.is_active = True
+                print(f"Estado inicial encontrado: {state.name}")
+                return True
+        
+        # Se não houver estado inicial e houver estados, definir o primeiro como inicial
+        if self.states:
+            self.states[0].is_initial = True
+            self.states[0].is_active = True
+            self.current_state = self.states[0]
+            print(f"Nenhum estado inicial definido. Usando o primeiro estado: {self.states[0].name}")
+            return True
+        
+        return False
         
     # |--------------- STATE FUNCTIONS ---------------|
         
@@ -418,6 +442,11 @@ class ExecutionControlChart():
         Args:
             input_event_name (str): O nome do evento de entrada que disparou a execução.
         """
+        # Desativar todos os eventos de saída antes da execução
+        for event in self.fb.events:
+            if not event.is_input:
+                event.active = False
+        
         # 1. Encontrar o evento de entrada correspondente
         input_event = self.fb.event_get(input_event_name)
 
@@ -438,8 +467,21 @@ class ExecutionControlChart():
         if found_transition:
             print(f"Transição encontrada do estado '{self.current_state.name}' para o estado '{found_transition.to_state.name}'.")
 
-            # 3. Executar ações do estado atual e atualizar o estado
+            # 3. Executar ações do estado atual antes da transição
             self.current_state.run_actions()
+            
+            # Ativar os eventos de saída das ações do estado atual
+            for action in self.current_state.actions:
+                if action.output_event and action.output_event.name != '':
+                    output_event = self.fb.event_get(action.output_event.name)
+                    if output_event:
+                        output_event.active = True
+                        print(f"Evento de saída '{output_event.name}' ativado.")
+            
+            # 4. Armazenar a transição executada para destacá-la visualmente
+            self.last_executed_transition = found_transition
+            
+            # 5. Atualizar o estado
             self.update_current_state(found_transition)
             print(f"Novo estado atual: '{self.current_state.name}'.")
         else:
