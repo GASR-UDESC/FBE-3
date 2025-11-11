@@ -2,7 +2,8 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
-from .base import PageMixin
+
+from base import PageMixin
 
 
 class SystemEditor(PageMixin, Gtk.Box):

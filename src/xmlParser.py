@@ -6,7 +6,7 @@ cur_path = os.path.realpath(__file__)
 base_path = os.path.dirname(os.path.dirname(cur_path))
 sys.path.insert(1, base_path)
 
-from .function_block import *
+from function_block import *
 
 def convert_xml_basic_fb(xml, library):
     fb_import_list = set()

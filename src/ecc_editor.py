@@ -1,9 +1,9 @@
 import gi
 
-from .function_block import FunctionBlock, ExecutionControlChart, State, Transition
-from .ecc_renderer import EccRenderer
-from .simulator_editor import SimulatorEditor
-from .base import PageMixin
+from function_block import FunctionBlock, ExecutionControlChart, State, Transition
+from ecc_renderer import EccRenderer
+from simulator_editor import SimulatorEditor
+from base import PageMixin
 
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gio, Gdk, Gtk

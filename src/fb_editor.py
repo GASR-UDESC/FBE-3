@@ -2,9 +2,10 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
-from .base import PageMixin
-from .fb_renderer import FunctionBlockRenderer
-from .ecc_editor import EccEditor
+
+from base import PageMixin
+from fb_renderer import FunctionBlockRenderer
+from ecc_editor import EccEditor
 import copy
 
 @Gtk.Template(resource_path='/com/lapas/Fbe/menu.ui')

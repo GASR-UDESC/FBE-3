@@ -1,9 +1,10 @@
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
-from .base import PageMixin
-from .fb_editor import FunctionBlockEditor
-from .system_renderer import SystemRenderer
+
+from base import PageMixin
+from fb_editor import FunctionBlockEditor
+from system_renderer import SystemRenderer
 
 import gi
 import math

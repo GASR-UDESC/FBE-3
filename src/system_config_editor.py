@@ -2,10 +2,11 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
-from .base import PageMixin
-from .system_renderer import SystemRenderer
-from .fb_editor import FunctionBlockEditor
-from .xmlParser import *
+
+from base import PageMixin
+from system_renderer import SystemRenderer
+from fb_editor import FunctionBlockEditor
+from xmlParser import *
 
 class SystemConfigEditor(PageMixin, Gtk.Box):
     def __init__(self, system, project, library, current_tool=None, *args, **kwargs):

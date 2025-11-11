@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/lapas/Fbe">
-    <file preprocess="xml-stripblanks">window.ui</file>
-    <file preprocess="xml-stripblanks">menu.ui</file>
-    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
-    <file preprocess="xml-stripblanks">dialog.ui</file>
+    <file>window.ui</file>
+    <file>menu.ui</file>
+    <file>gtk/help-overlay.ui</file>
+    <file>dialog.ui</file>
+    <file compressed="true">icons/fbe.svg</file>
+    <file compressed="true">icons/add.png</file>
+    <file compressed="true">icons/connect.png</file>
+    <file compressed="true">icons/delete.png</file>
+    <file compressed="true">icons/move.png</file>
+    <file compressed="true">icons/edit.png</file>
+    <file compressed="true">icons/save.png</file>
+    <file compressed="true">icons/save_as.png</file>
+    <file compressed="true">icons/new_fb.png</file>
+    <file compressed="true">icons/inspect_fb.png</file>
+    <file compressed="true">icons/new_file.png</file>
+    <file compressed="true">icons/directory.png</file>
+    <file compressed="true">icons/left_arrow.png</file>
+    <file compressed="true">icons/right_arrow.png</file>
+    <file compressed="true">icons/big_right_arrow.png</file>
+    <file compressed="true">icons/big_left_arrow.png</file>
+    <file compressed="true">icons/plus-symbolic.svg</file>
+    <file compressed="true">icons/com.lapas.Fbe.svg</file>
+    <file compressed="true">icons/com.lapas.Fbe-symbolic.svg</file>
   </gresource>
 </gresources>

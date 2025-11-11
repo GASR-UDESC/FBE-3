@@ -1,6 +1,6 @@
 # window.py
 #
-# Copyright 2024 Cabral
+# Copyright 2025 Mauricio Martins Taques Filho
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,16 +21,19 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
+
 import sys
 import os
+
 cur_path = os.path.realpath(__file__)
 base_path = os.path.dirname(os.path.dirname(cur_path))
 sys.path.insert(1, base_path)
-from .fb_editor import FunctionBlockEditor
-from .function_block import FunctionBlock
-from .project_editor import ProjectEditor
-from .simulator_editor import SimulatorEditor
-from .xmlParser import *
+
+from fb_editor import FunctionBlockEditor
+from function_block import FunctionBlock
+from project_editor import ProjectEditor
+from simulator_editor import SimulatorEditor
+from xmlParser import *
 
 @Gtk.Template(resource_path='/com/lapas/Fbe/window.ui')
 class FbeWindow(Adw.ApplicationWindow):

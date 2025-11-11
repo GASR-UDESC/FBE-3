@@ -2,11 +2,12 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import GLib
-from .base import PageMixin
-from .system_editor import SystemEditor
-from .system_config_editor import SystemConfigEditor
-from .fb_editor import FunctionBlockEditor
-from .export import ExportWindow
+
+from base import PageMixin
+from system_editor import SystemEditor
+from system_config_editor import SystemConfigEditor
+from fb_editor import FunctionBlockEditor
+from export import ExportWindow
 
 @Gtk.Template(resource_path='/com/lapas/Fbe/menu.ui')
 class ProjectEditor(PageMixin, Gtk.Box):

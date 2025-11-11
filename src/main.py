@@ -1,6 +1,6 @@
 # main.py
 #
-# Copyright 2024 Cabral
+# Copyright 2025 Mauricio Martins Taques Filho
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,8 +24,24 @@ import os
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
-from gi.repository import Gtk, Gio, Adw
-from .window import FbeWindow
+from gi.repository import Gtk, Gio, Adw, Gdk
+
+resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fbe.gresource')
+if not os.path.exists(resource_path):
+    print(f"ERRO: Arquivo de recursos não encontrado: {resource_path}")
+    sys.exit(1)
+
+try:
+    resource = Gio.Resource.load(resource_path)
+    resource._register()
+    print(f"Recursos carregados com sucesso de: {resource_path}")
+except Exception as e:
+    print(f"ERRO ao carregar recursos: {e}")
+    sys.exit(1)
+
+
+from window import FbeWindow
+
 cur_path = os.path.realpath(__file__)
 base_path = os.path.dirname(os.path.dirname(cur_path))
 sys.path.insert(1, base_path)
@@ -55,6 +71,14 @@ class FbeApplication(Adw.Application):
         self.set_accels_for_action('win.last-page', ['<Ctrl>b'])
         self.set_accels_for_action('win.export-project', ['<Ctrl>e'])
         self.set_accels_for_action('win.open-simulator', ['<Ctrl>r'])
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+
+        Adw.init()
+
+        icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        icon_theme.add_resource_path("/com/lapas/Fbe")
 
     def do_activate(self):
         """
@@ -104,3 +128,7 @@ def main(version):
     """The application's entry point."""
     app = FbeApplication()
     return app.run(sys.argv)
+
+
+if __name__ == '__main__':
+    main('0.2.0')
