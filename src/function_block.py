@@ -58,7 +58,19 @@ class Action():
         self.algorithm = Algorithm()
         
     def run_action(self):
-        self.is_algorithm_executed = self.algorithm.func()  # Function returns True if algorithm went fine
+        """Executa a ação (algoritmo e evento de saída)"""
+        # Verificar se o algoritmo tem uma função associada
+        if self.algorithm and self.algorithm.func is not None:
+            # Executar a função do algoritmo
+            self.is_algorithm_executed = self.algorithm.func()
+        elif self.algorithm and self.algorithm.name:
+            # Se não há função mas há nome de algoritmo, considerar executado
+            print(f"Algoritmo '{self.algorithm.name}' executado (sem função Python associada)")
+            self.is_algorithm_executed = True
+        else:
+            # Sem algoritmo, considerar executado
+            self.is_algorithm_executed = True
+
         if self.is_algorithm_executed == True:
             # print("Output event = "+ self.output_event.name)
             self.is_action_executed = True

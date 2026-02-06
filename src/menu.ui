@@ -28,6 +28,12 @@
     <submenu id="apps_submenu">
       <attribute name="label">_Apps</attribute>
     </submenu>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Abrir Simulador</attribute>
+        <attribute name="action">win.open-simulator-dialog</attribute>
+      </item>
+    </section>
   </menu>
 
   <menu id="mapping_menu">

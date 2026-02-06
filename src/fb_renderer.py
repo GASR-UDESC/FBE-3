@@ -1,4 +1,5 @@
 from gi.repository import Gtk
+from gi.repository import Adw
 import sys
 import gi
 import os
@@ -16,20 +17,48 @@ class FunctionBlockRenderer(Gtk.DrawingArea):
         self.inspected_block = inspected_block
         self.selected_connection = None
         self.offset_x, self.offset_y = 0, 0
+
+        # Gerenciador de estilo para detectar tema escuro
+        self.style_manager = Adw.StyleManager.get_default()
+
+    def get_foreground_color(self):
+        """Retorna cor de primeiro plano baseada no tema (branco no escuro, preto no claro)"""
+        if self.style_manager.get_dark():
+            return (1.0, 1.0, 1.0)  # Branco
+        else:
+            return (0.0, 0.0, 0.0)  # Preto
+
+    def get_background_color(self):
+        """Retorna cor de fundo baseada no tema"""
+        if self.style_manager.get_dark():
+            return (0.15, 0.15, 0.15)  # Cinza escuro
+        else:
+            return (1.0, 1.0, 1.0)  # Branco
+
+    def get_grid_color(self):
+        """Retorna cor da grade baseada no tema"""
+        if self.style_manager.get_dark():
+            return (0.3, 0.3, 0.3, 0.3)  # Cinza mais claro com transparência
+        else:
+            return (0.0, 0.0, 0.0, 0.15)  # Preto com transparência
         
     def draw_grid(self, cr):
         allocation = self.get_allocation()
         width = allocation.width
         height = allocation.height
 
-        cr.set_source_rgba(1, 1, 1, 0.1)
+        # Cor de fundo adaptável ao tema
+        bg_color = self.get_background_color()
+        cr.set_source_rgba(bg_color[0], bg_color[1], bg_color[2], 0.1)
         cr.rectangle(0, 0, width, height)
         cr.fill()
 
-        cr.set_source_rgba(0, 0, 0, 0.15)
+        # Cor da grade adaptável ao tema
+        grid_color = self.get_grid_color()
+        cr.set_source_rgba(*grid_color)
         grid_size = 20
-        dot_spacing = 2 
-        cr.set_dash([2.5, 2.5], 0) 
+        dot_spacing = 2
+        cr.set_dash([2.5, 2.5], 0)
         cr.set_line_width(1.0)
         grid_size = 20
         for i in range(0, width, grid_size):
@@ -41,17 +70,7 @@ class FunctionBlockRenderer(Gtk.DrawingArea):
             cr.move_to(0, j)
             cr.line_to(width, j)
             cr.stroke()
-            
-        # for i in range(0, width, grid_size):
-        #     for j in range(0, height, dot_spacing*2):
-        #         cr.rectangle(i, j, dot_spacing, dot_spacing)
-        #         cr.fill()
 
-        # for j in range(0, height, grid_size):
-        #     for i in range(0, width, dot_spacing*2):
-        #         cr.rectangle(i, j, dot_spacing, dot_spacing)
-        #         cr.fill()
-        
         cr.set_dash((), 0.0)
 
     def draw_function_block(self, cr, wid, fb, gain):
@@ -100,7 +119,9 @@ class FunctionBlockRenderer(Gtk.DrawingArea):
                     var.x = pos_x-(len(var.name)+2)*4
                     var.y = pos_y+count_pos-4
 
-        cr.set_source_rgb(0, 0, 0)
+        # Usar cor de primeiro plano adaptável ao tema
+        fg_color = self.get_foreground_color()
+        cr.set_source_rgb(*fg_color)
         cr.set_line_width(2.3)
         i_pos_x = fb.x
         i_pos_y = fb.y
@@ -431,7 +452,12 @@ class FunctionBlockRenderer(Gtk.DrawingArea):
                   font_slant=cairo.FONT_SLANT_NORMAL,
                   font_weight=cairo.FONT_WEIGHT_NORMAL
                   ):
-        cr.set_source_rgb(fst_selected, 0, snd_selected)
+        # Usar cor de primeiro plano adaptável quando não há seleção
+        if fst_selected == 0 and snd_selected == 0:
+            fg_color = self.get_foreground_color()
+            cr.set_source_rgb(*fg_color)
+        else:
+            cr.set_source_rgb(fst_selected, 0, snd_selected)
         cr.select_font_face(font_family, font_slant, font_weight)
         cr.set_font_size(font_size)
         cr.move_to(i_pos_x, i_pos_y)

@@ -173,16 +173,33 @@
               </object>
             </child>
           </object>
-        </property>
+        </child>
       </object>
     </property>
   </template>
 
   <menu id="secondary_menu">
     <section>
-      <item>
-        <attribute name="label" translatable="yes">_Preferences</attribute>
-      </item>
+      <submenu>
+        <attribute name="label" translatable="yes">_Preferências</attribute>
+        <section>
+          <submenu>
+            <attribute name="label" translatable="yes">Aparência</attribute>
+            <section>
+              <item>
+                <attribute name="label" translatable="yes">Modo Claro</attribute>
+                <attribute name="action">win.color-scheme</attribute>
+                <attribute name="target">light</attribute>
+              </item>
+              <item>
+                <attribute name="label" translatable="yes">Modo Escuro</attribute>
+                <attribute name="action">win.color-scheme</attribute>
+                <attribute name="target">dark</attribute>
+              </item>
+            </section>
+          </submenu>
+        </section>
+      </submenu>
       <item>
         <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
         <attribute name="action">win.show-help-overlay</attribute>

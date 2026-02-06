@@ -21,6 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gdk
+from gi.repository import GLib
 
 import sys
 import os
@@ -74,6 +75,18 @@ class FbeWindow(Adw.ApplicationWindow):
         open_simulator_action = Gio.SimpleAction(name="open-simulator")
         open_simulator_action.connect("activate", self.open_simulator)
         self.add_action(open_simulator_action)
+
+        # Ação para alternar entre modos claro/escuro/automático
+        color_scheme_action = Gio.SimpleAction.new_stateful(
+            "color-scheme",
+            GLib.VariantType.new("s"),
+            GLib.Variant("s", "default")
+        )
+        color_scheme_action.connect("activate", self.on_color_scheme_changed)
+        self.add_action(color_scheme_action)
+
+        # Inicializar o AdwStyleManager
+        self.style_manager = Adw.StyleManager.get_default()
 
         # ---------- Make tool frame's border square ---------- #
         css_provider = Gtk.CssProvider()
@@ -143,7 +156,7 @@ class FbeWindow(Adw.ApplicationWindow):
         self.gesture_press.connect("pressed", self.on_add_library_fb)
         self.list_view.add_controller(self.gesture_press)
 
-        self.library = "/home/tqs/FBE-3/src/models/fb_library/"
+        self.library = "/home/taques/FBE-3/src/models/fb_library/"
         self.actual_folder = None
 
     def create_list_factory(self):
@@ -433,40 +446,81 @@ class FbeWindow(Adw.ApplicationWindow):
                 dialog.present()
 
 
-    def open_simulator(self, action, param):
+    def open_simulator(self, action, param, fb=None, fb_name=None):
         """
         Abre uma nova aba com o simulador de ECC.
         Se já estiver aberta, apenas navega para ela.
+
+        Args:
+            action: Ação do Gio
+            param: Parâmetros da ação
+            fb: Function Block para simular (opcional)
+            fb_name: Nome do FB para exibir na aba (opcional)
         """
-        # Verifica se já existe uma aba para o simulador
+        # Se não foi fornecido um FB, tentar obter do projeto atual
+        if fb is None:
+            current_page = self.get_current_tab_widget()
+            if isinstance(current_page, ProjectEditor):
+                # Usar o diálogo de seleção do ProjectEditor
+                current_page.on_open_simulator_dialog(action, param)
+                return
+            else:
+                # Criar um FB de exemplo para demonstração
+                fb = FunctionBlock(name="Simulador Exemplo")
+                fb_name = "Exemplo"
+
+                # Mostrar mensagem informativa
+                toast = Adw.Toast.new("Nenhum projeto aberto. Criado FB de exemplo para demonstração.")
+                toast_overlay = Adw.ToastOverlay.new()
+                toast_overlay.add_toast(toast)
+                self.vbox_window.append(toast_overlay)
+
+        # Nome padrão se não fornecido
+        if fb_name is None:
+            fb_name = fb.name if hasattr(fb, 'name') else "Simulador"
+
+        # Verifica se já existe uma aba para este simulador específico
         simulator_widget = None
         for i in range(self.notebook.get_n_pages()):
             page_widget = self.notebook.get_nth_page(i)
-            # A classe tem que ser SimulationEditor, ou um supertipo
             if isinstance(page_widget, SimulatorEditor):
-                simulator_widget = page_widget
-                break
+                # Verificar se é o mesmo FB
+                if page_widget.fb.name == fb.name:
+                    simulator_widget = page_widget
+                    break
 
         # Se a aba do simulador já existe, navegue para ela
         if simulator_widget:
             page_num = self.notebook.page_num(simulator_widget)
             self.notebook.set_current_page(page_num)
         else:
-            # Caso contrário, crie uma nova aba para o simulador
-            # O fb precisa ser um objeto FunctionBlock válido
-            # Você precisaria obter o fb do projeto atualmente aberto
-            # Por enquanto, assumimos que um fb está disponível
-
-            # TODO: Obter o FunctionBlock atual do projeto aberto
-            # Exemplo: fb = self.get_current_project_fb()
-
-            # Para testar, vamos criar um FB de exemplo
-            fb_to_simulate = FunctionBlock(name="Simulador Exemplo")
-
-            simulator_editor = SimulatorEditor(fb_to_simulate)
-            self.add_tab(simulator_editor, "Simulador")
+            # Criar nova aba do simulador
+            simulator_editor = SimulatorEditor(fb)
+            self.add_tab(simulator_editor, f"Simulador: {fb_name}")
             self.notebook.set_visible(True)
             self.labels_box.set_visible(False)
+
+    def on_color_scheme_changed(self, action, value):
+        """
+        Callback chamado quando o usuário seleciona um esquema de cores.
+
+        Args:
+            action: A ação que foi ativada
+            value: GLib.Variant contendo "light", "dark" ou "default"
+        """
+        scheme = value.get_string()
+        action.set_state(value)
+
+        # Mapear o valor para o ColorScheme do Adwaita
+        if scheme == "light":
+            self.style_manager.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+            print("Modo claro ativado")
+        elif scheme == "dark":
+            self.style_manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+            print("Modo escuro ativado")
+        else:  # "default"
+            self.style_manager.set_color_scheme(Adw.ColorScheme.DEFAULT)
+            print("Seguindo preferências do sistema")
 
 
 
