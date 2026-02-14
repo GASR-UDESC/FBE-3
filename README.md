@@ -1,6 +1,6 @@
 # Function Block Environment
 
-An application for modelling function blocks based on IEC 61499. 
+Function Block Environment 3 is an application for creating projects and modelling function blocks based on IEC 61499. 
 
 ## Requirements:
  - Python3
