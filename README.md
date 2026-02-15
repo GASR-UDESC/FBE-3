@@ -1,35 +1,37 @@
 # Function Block Environment
 
-Function Block Environment 3 is an application for creating projects and modelling function blocks based on IEC 61499. 
+Function Block Environment 3 is an application for creating projects and modelling function blocks based on the IEC 61499. 
 
 ## Requirements:
- - Python3
- - GNOME Builder (Available only for LINUX)
- - Flatpak (Required for installing GNOME Builder)
+ - Python3.8 or superior
+ - Gnome Toolkit (GTK) 4
     
-### How to install Builder:
- 1. Install Flatpak:
+### How to install Python3/GTK4:
+ 1. Install Python:
     ```
-    sudo apt install flatpak
+    sudo apt update
     ```
- 3. Add the flathub repository:
     ```
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    sudo apt install python3
     ```
- 4. Restart your system
- 5. Install GNOME Builder:
+ 2. Install GTK4 and dependecies:
     ```
-    flatpak install flathub org.gnome.Builder
+    sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-4.0 gir1.2-adw-1 libgtk-4-dev libadwaita-1-dev
     ```
 
 ## To run FBE:
  1. Clone the FBE repository:
     ```
-    git clone https://github.com/cabralbonin/fbe3_gnome.git
+    git clone https://github.com/GASR-UDESC/FBE-3.git
     ```
- 3. Open Builder then add the FBE project.
- 4. Open the project
- 5. Run project (Shift+Ctrl+Space)
+ 2. Open the application folder:
+    ```
+    cd FBE-3
+    ```
+ 3. Run the script:
+    ```
+    ./run_fbe.sh
+    ```
 
 ## How to use:
 #### When no project is open, this is what the application looks like:
