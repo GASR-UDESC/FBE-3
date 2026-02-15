@@ -35,7 +35,7 @@ Function Block Environment 3 is an application for creating projects and modelli
 
 ## How to use:
 #### When no project is open, this is what the application looks like:
-<img width="1000px" alt="No project open" src="assets/home.png">
+<img width="800px" alt="No project open" src="assets/home.png">
 
 #### On the left side there's the editor workspace with basic tools like add, move, inspect, delete and connect. 
 ![editorworkspace](https://github.com/user-attachments/assets/ba16acda-1554-4ab0-b3c4-74049b2f5d5c)
