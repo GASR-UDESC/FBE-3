@@ -38,7 +38,7 @@ Function Block Environment 3 is an application for creating projects and modelli
 <img width="1000px" alt="No project open" src="assets/home.png">
 
 #### On the left side there's the editor workspace with basic tools like add, move, inspect, delete and connect. 
-![editorworkspace](https://github.com/user-attachments/assets/ba16acda-1554-4ab0-b3c4-74049b2f5d5c)
+<img width="1000px" alt="Tools menu" src="assets/tools.png">
 
 #### Right below there's the import library space, where you can load a library (e.g., home/user/documents/mylibrary) and also refresh once there's a change in the directory.
 ![loadlibrary](https://github.com/user-attachments/assets/04dc3313-73e9-4332-a20b-f762cf60ae1f) 
