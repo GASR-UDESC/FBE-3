@@ -41,8 +41,8 @@ Function Block Environment 3 is an application for creating projects and modelli
 <img width="500px" alt="Tools menu" src="assets/tools.png">
 
 #### Right below there's the import library space, where you can load a library (e.g., home/user/documents/mylibrary) and also refresh once there's a change in the directory.
-<img width="500px" alt="No project open" src="assets/import_library.png">
-<img width="500px" alt="No project open" src="assets/library.png">
+<img width="200px" alt="No project open" src="assets/import_library.png">
+<img width="200px" alt="No project open" src="assets/library.png">
 
 #### When adding a element to the project, remember to load a library (if the element has nested elements) to properly work.
 
