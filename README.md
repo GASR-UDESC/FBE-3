@@ -50,10 +50,10 @@ Function Block Environment 3 is an application for creating projects and modelli
 <img width="1000px" alt="No project open" src="assets/header_bar.png">
 
 #### The left button presents the options to create, open, save, save as and export a project
-<img width="1000px" alt="No project open" src="assets/side_menu.png">
+<img width="600px" alt="No project open" src="assets/side_menu.png">
 
 #### While the right button is where you can access preferences, keyboard shortcuts, read about FBE and also quit the application 
-<img width="1000px" alt="No project open" src="assets/preferences.png">
+<img width="600px" alt="No project open" src="assets/preferences.png">
 
 
 #### Upon creating a new project, it creates a blank unnamed system (which can refered as project) and application. The main page of every project it's the System Information. Through this page is possible to access every element of the project the user whishes to inspect by double clicking at element.
